@@ -2,7 +2,7 @@
 
 <!-- Feature Name -->
 
-Dashboard UI Phase 2
+Dashboard UI Phase 3
 
 ## Status
 
@@ -42,6 +42,13 @@ Completed
 - Recent collections section in sidebar with item counts
 - User avatar + name + settings gear in sidebar footer
 - Mobile sidebar always renders as a Sheet drawer (hamburger in topbar)
-- shadcn Sheet component installed
-- /items/[type] stub route created
-- DashboardShell client component extracts layout logic from server layout
+
+### Dashboard UI Phase 3 — 2026-04-07
+
+- 4 stats cards (total items, collections, favorite items, favorite collections)
+- Recent collections grid with left border color matching most frequent item type
+- Collection cards show type icons for contained item types
+- Pinned items section
+- 10 most recent items as individual cards with colored left border per type
+- Dashboard title and welcome subtitle
+- Mock data dates updated to 2026 for realistic time-ago display

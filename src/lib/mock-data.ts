@@ -23,7 +23,9 @@ export const mockCollections = [
     description: "DS&A problems and interview questions",
     isFavorite: true,
     itemCount: 12,
-    createdAt: "2024-03-01T00:00:00Z",
+    // first slug = most frequent (determines border color)
+    typeSlugs: ["snippet", "note", "link"],
+    createdAt: "2026-03-01T00:00:00Z",
   },
   {
     id: "col_2",
@@ -31,7 +33,8 @@ export const mockCollections = [
     description: "Common React patterns and best practices",
     isFavorite: false,
     itemCount: 8,
-    createdAt: "2024-03-05T00:00:00Z",
+    typeSlugs: ["snippet", "note"],
+    createdAt: "2026-03-10T00:00:00Z",
   },
   {
     id: "col_3",
@@ -39,7 +42,8 @@ export const mockCollections = [
     description: "Useful automation scripts",
     isFavorite: false,
     itemCount: 5,
-    createdAt: "2024-03-10T00:00:00Z",
+    typeSlugs: ["snippet", "command"],
+    createdAt: "2026-03-18T00:00:00Z",
   },
   {
     id: "col_4",
@@ -47,7 +51,8 @@ export const mockCollections = [
     description: "Docker commands and compose configs",
     isFavorite: false,
     itemCount: 3,
-    createdAt: "2024-03-15T00:00:00Z",
+    typeSlugs: ["command", "note"],
+    createdAt: "2026-03-25T00:00:00Z",
   },
   {
     id: "col_5",
@@ -55,7 +60,8 @@ export const mockCollections = [
     description: "Curated prompts for various AI tools",
     isFavorite: true,
     itemCount: 20,
-    createdAt: "2024-03-20T00:00:00Z",
+    typeSlugs: ["prompt", "note"],
+    createdAt: "2026-04-01T00:00:00Z",
   },
   {
     id: "col_6",
@@ -63,7 +69,8 @@ export const mockCollections = [
     description: "REST API notes and references",
     isFavorite: false,
     itemCount: 6,
-    createdAt: "2024-03-22T00:00:00Z",
+    typeSlugs: ["link", "note", "snippet"],
+    createdAt: "2026-04-05T00:00:00Z",
   },
 ]
 
@@ -93,8 +100,8 @@ export function useDebounce<T>(value: T, delay: number): T {
     isPinned: false,
     itemTypeId: "type_snippet",
     tags: ["react", "hooks", "typescript"],
-    createdAt: "2024-04-05T10:00:00Z",
-    updatedAt: "2024-04-05T10:00:00Z",
+    createdAt: "2026-04-05T10:00:00Z",
+    updatedAt: "2026-04-05T10:00:00Z",
   },
   {
     id: "item_2",
@@ -113,8 +120,8 @@ When given a task:
     isPinned: true,
     itemTypeId: "type_prompt",
     tags: ["ai", "system-prompt"],
-    createdAt: "2024-04-04T09:00:00Z",
-    updatedAt: "2024-04-04T09:00:00Z",
+    createdAt: "2026-04-04T09:00:00Z",
+    updatedAt: "2026-04-04T09:00:00Z",
   },
   {
     id: "item_3",
@@ -127,8 +134,8 @@ When given a task:
     isPinned: false,
     itemTypeId: "type_command",
     tags: ["docker", "devops"],
-    createdAt: "2024-04-03T14:00:00Z",
-    updatedAt: "2024-04-03T14:00:00Z",
+    createdAt: "2026-04-03T14:00:00Z",
+    updatedAt: "2026-04-03T14:00:00Z",
   },
   {
     id: "item_4",
@@ -142,8 +149,8 @@ When given a task:
     isPinned: false,
     itemTypeId: "type_link",
     tags: ["nextjs", "docs"],
-    createdAt: "2024-04-02T11:00:00Z",
-    updatedAt: "2024-04-02T11:00:00Z",
+    createdAt: "2026-04-02T11:00:00Z",
+    updatedAt: "2026-04-02T11:00:00Z",
   },
   {
     id: "item_5",
@@ -160,8 +167,8 @@ When given a task:
     isPinned: false,
     itemTypeId: "type_snippet",
     tags: ["prisma", "database"],
-    createdAt: "2024-04-01T16:00:00Z",
-    updatedAt: "2024-04-01T16:00:00Z",
+    createdAt: "2026-04-01T16:00:00Z",
+    updatedAt: "2026-04-01T16:00:00Z",
   },
   {
     id: "item_6",
@@ -174,8 +181,8 @@ When given a task:
     isPinned: false,
     itemTypeId: "type_command",
     tags: ["git"],
-    createdAt: "2024-03-30T08:00:00Z",
-    updatedAt: "2024-03-30T08:00:00Z",
+    createdAt: "2026-03-30T08:00:00Z",
+    updatedAt: "2026-03-30T08:00:00Z",
   },
 ]
 
