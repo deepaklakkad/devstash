@@ -483,6 +483,13 @@ model TagsOnItems {
 - [Linear](https://linear.app) — Minimal aesthetic
 - [Raycast](https://raycast.com) — Fast, keyboard-first
 
+### Screenshots
+
+Refer to the screenshots below as a base for the dashboard UI. It does not have to be exact. User it as a reference:
+
+- @context/screenshots/ui-dashboard.png
+- @context/screenshots/ui-drawer.png
+
 ### Layout Structure
 
 ```
