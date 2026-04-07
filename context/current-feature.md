@@ -8,7 +8,7 @@ Dashboard UI Phase 1
 
 <!-- Not Started|In Progress|Completed -->
 
-In Progress
+Completed
 
 ## Goals
 
@@ -36,3 +36,11 @@ In Progress
 - Project setup and boilerplate cleanup
 - Initial Next.js setup with Create Next App
 - Added mock data (src/lib/mock-data.ts) and UI screenshots
+
+### Dashboard UI Phase 1 — 2026-04-07
+
+- shadcn/ui initialized with Tailwind v4
+- Dashboard route at /dashboard
+- Dark mode by default (Inter font)
+- Top bar: search input, New Collection button, New Item button
+- Sidebar: placeholder content, avatar (bottom-left), settings gear (bottom-right)
