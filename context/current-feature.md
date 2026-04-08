@@ -2,21 +2,28 @@
 
 <!-- Feature Name -->
 
-Dashboard UI Phase 3
+Database Setup — Neon PostgreSQL + Prisma
 
 ## Status
 
 <!-- Not Started|In Progress|Completed -->
 
-Completed
+In Progress
 
 ## Goals
 
-<!-- Goals & requirements -->
+- Set up Prisma ORM v7 with Neon PostgreSQL (serverless)
+- Create initial schema based on data models in project-overview.md
+- Include NextAuth models (Account, Session, VerificationToken)
+- Add appropriate indexes and cascade deletes
+- Always create migrations (never use db push)
+- Seed system item types
 
 ## Notes
 
-<!-- Any extra notes -->
+- Use Prisma 7 (has breaking changes — read upgrade guide before implementing)
+- We have a development branch (DATABASE_URL) and a production branch — always use migrations
+- Seed data: 7 system item types (snippet, prompt, command, note, file, image, link)
 
 ## History
 
