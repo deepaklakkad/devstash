@@ -59,18 +59,22 @@ export async function getRecentItems(userId: string, limit = 10): Promise<ItemWi
 const ITEM_TYPE_ORDER = ["snippet", "prompt", "command", "note", "file", "image", "link"]
 
 export async function getItemTypes(userId: string): Promise<SidebarItemType[]> {
-  const types = await prisma.itemType.findMany({
-    where: {
-      OR: [{ isSystem: true }, { userId }],
-    },
-    include: {
-      _count: {
-        select: {
-          items: { where: { userId } },
-        },
+  const [types, itemCounts] = await Promise.all([
+    prisma.itemType.findMany({
+      where: {
+        OR: [{ isSystem: true }, { userId }],
       },
-    },
-  })
+    }),
+    userId
+      ? prisma.item.groupBy({
+          by: ["itemTypeId"],
+          where: { userId },
+          _count: { _all: true },
+        })
+      : Promise.resolve([]),
+  ])
+
+  const countMap = new Map(itemCounts.map((c) => [c.itemTypeId, c._count._all]))
 
   return types
     .map((t) => ({
@@ -79,7 +83,7 @@ export async function getItemTypes(userId: string): Promise<SidebarItemType[]> {
       slug: t.slug,
       icon: t.icon,
       color: t.color,
-      itemCount: t._count.items,
+      itemCount: countMap.get(t.id) ?? 0,
     }))
     .sort((a, b) => {
       const ai = ITEM_TYPE_ORDER.indexOf(a.slug)
