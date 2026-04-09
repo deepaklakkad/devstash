@@ -1,5 +1,14 @@
 import { prisma } from "@/lib/db"
 
+export type SidebarItemType = {
+  id: string
+  name: string
+  slug: string
+  icon: string
+  color: string
+  itemCount: number
+}
+
 export type ItemWithType = {
   id: string
   title: string
@@ -45,6 +54,39 @@ export async function getRecentItems(userId: string, limit = 10): Promise<ItemWi
   })
 
   return items.map(toItemWithType)
+}
+
+const ITEM_TYPE_ORDER = ["snippet", "prompt", "command", "note", "file", "image", "link"]
+
+export async function getItemTypes(userId: string): Promise<SidebarItemType[]> {
+  const types = await prisma.itemType.findMany({
+    where: {
+      OR: [{ isSystem: true }, { userId }],
+    },
+    include: {
+      _count: {
+        select: {
+          items: { where: { userId } },
+        },
+      },
+    },
+  })
+
+  return types
+    .map((t) => ({
+      id: t.id,
+      name: t.name,
+      slug: t.slug,
+      icon: t.icon,
+      color: t.color,
+      itemCount: t._count.items,
+    }))
+    .sort((a, b) => {
+      const ai = ITEM_TYPE_ORDER.indexOf(a.slug)
+      const bi = ITEM_TYPE_ORDER.indexOf(b.slug)
+      // Known types sort by defined order; unknown types go to the end
+      return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi)
+    })
 }
 
 export async function getItemStats(userId: string): Promise<ItemStats> {

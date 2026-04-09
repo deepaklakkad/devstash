@@ -18,6 +18,63 @@ export type CollectionStats = {
   favoriteCollections: number
 }
 
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+type PrismaCollection = Awaited<ReturnType<typeof prisma.collection.findMany<{
+  include: {
+    items: {
+      include: {
+        item: { include: { itemType: true } }
+      }
+    }
+  }
+}>>>[number]
+
+function toCollectionWithTypes(col: PrismaCollection): CollectionWithTypes {
+  const typeCounts: Record<string, number> = {}
+  const typeColors: Record<string, string> = {}
+  const typeIcons: Record<string, string> = {}
+
+  for (const { item } of col.items) {
+    const { slug, color, icon } = item.itemType
+    typeCounts[slug] = (typeCounts[slug] ?? 0) + 1
+    typeColors[slug] = color
+    typeIcons[slug] = icon
+  }
+
+  const typeSlugs = Object.entries(typeCounts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([slug]) => slug)
+
+  return {
+    id: col.id,
+    name: col.name,
+    description: col.description,
+    isFavorite: col.isFavorite,
+    itemCount: col.items.length,
+    typeSlugs,
+    typeColors,
+    typeIcons,
+    createdAt: col.createdAt,
+  }
+}
+
+const collectionInclude = {
+  items: {
+    include: {
+      item: {
+        include: { itemType: true },
+      },
+    },
+  },
+} as const
+
+// ---------------------------------------------------------------------------
+// Queries
+// ---------------------------------------------------------------------------
+
 export async function getRecentCollections(
   userId: string,
   limit = 4
@@ -26,47 +83,24 @@ export async function getRecentCollections(
     where: { userId },
     orderBy: { createdAt: "desc" },
     take: limit,
-    include: {
-      items: {
-        include: {
-          item: {
-            include: { itemType: true },
-          },
-        },
-      },
-    },
+    include: collectionInclude,
   })
 
-  return collections.map((col) => {
-    // Count occurrences of each item type
-    const typeCounts: Record<string, number> = {}
-    const typeColors: Record<string, string> = {}
-    const typeIcons: Record<string, string> = {}
+  return collections.map(toCollectionWithTypes)
+}
 
-    for (const { item } of col.items) {
-      const { slug, color, icon } = item.itemType
-      typeCounts[slug] = (typeCounts[slug] ?? 0) + 1
-      typeColors[slug] = color
-      typeIcons[slug] = icon
-    }
-
-    // Sort slugs by frequency descending (most-used first → border color)
-    const typeSlugs = Object.entries(typeCounts)
-      .sort(([, a], [, b]) => b - a)
-      .map(([slug]) => slug)
-
-    return {
-      id: col.id,
-      name: col.name,
-      description: col.description,
-      isFavorite: col.isFavorite,
-      itemCount: col.items.length,
-      typeSlugs,
-      typeColors,
-      typeIcons,
-      createdAt: col.createdAt,
-    }
+export async function getFavoriteCollections(
+  userId: string,
+  limit = 5
+): Promise<CollectionWithTypes[]> {
+  const collections = await prisma.collection.findMany({
+    where: { userId, isFavorite: true },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+    include: collectionInclude,
   })
+
+  return collections.map(toCollectionWithTypes)
 }
 
 export async function getCollectionStats(userId: string): Promise<CollectionStats> {
