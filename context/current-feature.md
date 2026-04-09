@@ -2,28 +2,68 @@
 
 <!-- Feature Name -->
 
-Database Setup — Neon PostgreSQL + Prisma
+Seed Data
 
 ## Status
 
 <!-- Not Started|In Progress|Completed -->
 
-In Progress
+Not Started
 
 ## Goals
 
-- Set up Prisma ORM v7 with Neon PostgreSQL (serverless)
-- Create initial schema based on data models in project-overview.md
-- Include NextAuth models (Account, Session, VerificationToken)
-- Add appropriate indexes and cascade deletes
-- Always create migrations (never use db push)
-- Seed system item types
+- Create `prisma/seed.ts` to populate the database with sample data for development and demos
+- Seed a demo user (demo@devstash.io, password hashed with bcryptjs 12 rounds)
+- Seed 7 system item types (snippet, prompt, command, note, file, image, link)
+- Seed 5 collections with realistic items
 
 ## Notes
 
-- Use Prisma 7 (has breaking changes — read upgrade guide before implementing)
-- We have a development branch (DATABASE_URL) and a production branch — always use migrations
-- Seed data: 7 system item types (snippet, prompt, command, note, file, image, link)
+### Demo User
+
+- **Email:** demo@devstash.io
+- **Name:** Demo User
+- **Password:** 12345678 (bcryptjs, 12 rounds)
+- **isPro:** false
+- **emailVerified:** current date
+
+### System Item Types
+
+| Name    | Icon       | Color   |
+| ------- | ---------- | ------- |
+| snippet | Code       | #3b82f6 |
+| prompt  | Sparkles   | #8b5cf6 |
+| command | Terminal   | #f97316 |
+| note    | StickyNote | #fde047 |
+| file    | File       | #6b7280 |
+| image   | Image      | #ec4899 |
+| link    | Link       | #10b981 |
+
+All types have `isSystem: true`.
+
+### Collections & Items
+
+#### React Patterns
+_Description: Reusable React patterns and hooks_
+- 3 snippets (TypeScript): useDebounce/useLocalStorage hooks, Context provider / compound component pattern, utility functions
+
+#### AI Workflows
+_Description: AI prompts and workflow automations_
+- 3 prompts: code review prompt, documentation generation prompt, refactoring assistance prompt
+
+#### DevOps
+_Description: Infrastructure and deployment resources_
+- 1 snippet (Docker / CI/CD config)
+- 1 command (deployment script)
+- 2 links (real documentation URLs)
+
+#### Terminal Commands
+_Description: Useful shell commands for everyday development_
+- 4 commands: git operations, docker commands, process management, package manager utilities
+
+#### Design Resources
+_Description: UI/UX resources and references_
+- 4 links (real URLs): CSS/Tailwind reference, component library, design system, icon library
 
 ## History
 
@@ -59,3 +99,11 @@ In Progress
 - 10 most recent items as individual cards with colored left border per type
 - Dashboard title and welcome subtitle
 - Mock data dates updated to 2026 for realistic time-ago display
+
+### Database Setup — Neon PostgreSQL + Prisma — 2026-04-09
+
+- Prisma ORM v7 installed and configured with Neon PostgreSQL (serverless)
+- Full schema created: User, Account, Session, VerificationToken, Item, ItemType, Collection, Tag, join tables
+- Appropriate indexes and cascade deletes
+- Initial migration applied
+- 7 system item types seeded (snippet, prompt, command, note, file, image, link)
