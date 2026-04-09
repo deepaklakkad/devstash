@@ -16,10 +16,10 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { prisma } from "@/lib/db"
 import { getCollectionStats, getRecentCollections, type CollectionWithTypes } from "@/lib/db/collections"
-import { mockItems, mockItemTypes, mockUser } from "@/lib/mock-data"
+import { getItemStats, getPinnedItems, getRecentItems, type ItemWithType } from "@/lib/db/items"
 
 // ---------------------------------------------------------------------------
-// Lookups
+// Icon map
 // ---------------------------------------------------------------------------
 
 const iconMap = {
@@ -31,8 +31,6 @@ const iconMap = {
   Image,
   Link: LinkIcon,
 } as const
-
-const typeById = Object.fromEntries(mockItemTypes.map((t) => [t.id, t]))
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -73,7 +71,7 @@ function StatCard({
 }
 
 // ---------------------------------------------------------------------------
-// Collection Card — left border color = most frequent type, icons for all types
+// Collection Card
 // ---------------------------------------------------------------------------
 
 function CollectionCard({ col }: { col: CollectionWithTypes }) {
@@ -105,11 +103,7 @@ function CollectionCard({ col }: { col: CollectionWithTypes }) {
             if (!icon) return null
             const Icon = iconMap[icon as keyof typeof iconMap] ?? Code
             return (
-              <Icon
-                key={slug}
-                className="size-3.5 shrink-0"
-                style={{ color }}
-              />
+              <Icon key={slug} className="size-3.5 shrink-0" style={{ color }} />
             )
           })}
           <span className="ml-auto text-xs text-muted-foreground">
@@ -122,21 +116,19 @@ function CollectionCard({ col }: { col: CollectionWithTypes }) {
 }
 
 // ---------------------------------------------------------------------------
-// Item Card — individual card with thick left border matching type color
+// Item Card
 // ---------------------------------------------------------------------------
 
-function ItemCard({ item }: { item: (typeof mockItems)[number] }) {
-  const type = typeById[item.itemTypeId]
-  const Icon = type ? (iconMap[type.icon as keyof typeof iconMap] ?? Code) : Code
-  const borderColor = type?.color ?? "#6b7280"
+function ItemCard({ item }: { item: ItemWithType }) {
+  const Icon = iconMap[item.itemType.icon as keyof typeof iconMap] ?? Code
 
   return (
     <div
       className="rounded-lg border border-border bg-card overflow-hidden"
-      style={{ borderLeftColor: borderColor, borderLeftWidth: "3px" }}
+      style={{ borderLeftColor: item.itemType.color, borderLeftWidth: "3px" }}
     >
       <div className="px-4 py-3 flex items-start gap-3">
-        <Icon className="size-4 shrink-0 mt-0.5" style={{ color: type?.color }} />
+        <Icon className="size-4 shrink-0 mt-0.5" style={{ color: item.itemType.color }} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
@@ -181,17 +173,14 @@ export default async function DashboardPage() {
   const demoUser = await prisma.user.findUnique({ where: { email: "demo@devstash.io" } })
   const userId = demoUser?.id ?? ""
 
-  const [recentCollections, collectionStats] = await Promise.all([
-    getRecentCollections(userId, 4),
-    getCollectionStats(userId),
-  ])
-
-  // Items still use mock data (items feature not yet implemented)
-  const favoriteItems = mockItems.filter((i) => i.isFavorite)
-  const pinnedItems = mockItems.filter((i) => i.isPinned)
-  const recentItems = [...mockItems]
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-    .slice(0, 10)
+  const [recentCollections, collectionStats, pinnedItems, recentItems, itemStats] =
+    await Promise.all([
+      getRecentCollections(userId, 4),
+      getCollectionStats(userId),
+      getPinnedItems(userId),
+      getRecentItems(userId, 10),
+      getItemStats(userId),
+    ])
 
   return (
     <div className="p-6 space-y-8 max-w-5xl mx-auto">
@@ -199,16 +188,16 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Welcome back, {demoUser?.name ?? mockUser.name}
+          Welcome back, {demoUser?.name ?? "there"}
         </p>
       </div>
 
       {/* Stats */}
       <section>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard label="Total Items" value={mockItems.length} icon={Package} />
+          <StatCard label="Total Items" value={itemStats.totalItems} icon={Package} />
           <StatCard label="Collections" value={collectionStats.totalCollections} icon={FolderOpen} />
-          <StatCard label="Favorite Items" value={favoriteItems.length} icon={Star} />
+          <StatCard label="Favorite Items" value={itemStats.favoriteItems} icon={Star} />
           <StatCard
             label="Favorite Collections"
             value={collectionStats.favoriteCollections}
