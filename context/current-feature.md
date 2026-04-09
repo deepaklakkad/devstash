@@ -2,15 +2,25 @@
 
 <!-- Feature Name -->
 
+## Stats & Sidebar — Real Data
+
 ## Status
 
 <!-- Not Started|In Progress|Completed -->
 
-Not Started
+Completed
 
 ## Goals
 
+- Display stats cards from real database data, keeping current design/layout
+- Display system item types in sidebar with their icons, linking to `/items/[typename]`
+- Add "View all collections" link under the collections list going to `/collections`
+- Keep star icons for favorite collections; for recents, show a colored circle based on the most-used item type in that collection
+
 ## Notes
+
+- `src/lib/db/items.ts` already exists — reference it and `src/lib/db/collections.ts` for any new DB functions needed
+- Sidebar item types should come from DB (system types), not be hardcoded
 
 ## History
 
@@ -81,3 +91,15 @@ Not Started
 - Mock data fully removed from dashboard page
 - Seeded two pinned items (useDebounce hook, Code Review Prompt) via `scripts/patch-pinned.ts`
 - Updated `prisma/seed.ts` to mark those items as pinned for future reseeds
+
+### Stats & Sidebar — Real Data — 2026-04-09
+
+- Added `getFavoriteCollections` to `src/lib/db/collections.ts`; extracted shared mapping helper to eliminate duplication
+- Added `SidebarItemType` type and `getItemTypes` function to `src/lib/db/items.ts` with filtered per-user item counts
+- Item types ordered by defined sequence: Snippets, Prompts, Commands, Notes, Files, Images, Links
+- Dashboard layout made async to fetch sidebar data server-side and pass serializable props to the client shell
+- Removed all mock data from `dashboard-shell.tsx`; sidebar now driven entirely by DB
+- Favorite collections show a filled star icon (yellow)
+- Recent collections show a colored circle based on the collection's most-used item type
+- "View all collections" link added below the recents section, linking to `/collections`
+- User name and avatar in sidebar footer sourced from DB user record

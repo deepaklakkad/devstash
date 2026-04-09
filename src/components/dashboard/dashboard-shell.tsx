@@ -17,6 +17,7 @@ import {
   Settings,
   StickyNote,
   Sparkles,
+  Star,
   Terminal,
 } from "lucide-react"
 
@@ -26,13 +27,39 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
-import {
-  mockCollections,
-  mockFavoriteCollections,
-  mockItems,
-  mockItemTypes,
-  mockUser,
-} from "@/lib/mock-data"
+
+// ---------------------------------------------------------------------------
+// Types (serializable — passed from server layout)
+// ---------------------------------------------------------------------------
+
+type SidebarItemType = {
+  id: string
+  name: string
+  slug: string
+  icon: string
+  color: string
+  itemCount: number
+}
+
+type SidebarCollection = {
+  id: string
+  name: string
+  itemCount: number
+  primaryColor: string | null
+}
+
+type DashboardShellProps = {
+  children: React.ReactNode
+  itemTypes: SidebarItemType[]
+  favoriteCollections: SidebarCollection[]
+  recentCollections: SidebarCollection[]
+  userName: string
+  userImage: string | null
+}
+
+// ---------------------------------------------------------------------------
+// Icon map
+// ---------------------------------------------------------------------------
 
 const iconMap = {
   Code,
@@ -44,34 +71,34 @@ const iconMap = {
   Link: LinkIcon,
 } as const
 
-// Exclude Pro-only file/image types from sidebar nav
-const navItemTypes = mockItemTypes.filter(
-  (t) => t.slug !== "file" && t.slug !== "image"
-)
-
-// Item count per type id
-const itemTypeCounts = mockItems.reduce<Record<string, number>>((acc, item) => {
-  acc[item.itemTypeId] = (acc[item.itemTypeId] ?? 0) + 1
-  return acc
-}, {})
-
-// 3 most recent collections by createdAt
-const recentCollections = [...mockCollections]
-  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  .slice(0, 3)
-
-const userInitials = mockUser.name
-  .split(" ")
-  .map((n) => n[0])
-  .join("")
-  .toUpperCase()
-
 // ---------------------------------------------------------------------------
 // Sidebar content (shared between desktop aside and mobile Sheet)
 // ---------------------------------------------------------------------------
 
-function SidebarContent({ collapsed }: { collapsed: boolean }) {
+type SidebarContentProps = {
+  collapsed: boolean
+  itemTypes: SidebarItemType[]
+  favoriteCollections: SidebarCollection[]
+  recentCollections: SidebarCollection[]
+  userName: string
+  userImage: string | null
+}
+
+function SidebarContent({
+  collapsed,
+  itemTypes,
+  favoriteCollections,
+  recentCollections,
+  userName,
+  userImage,
+}: SidebarContentProps) {
   const pathname = usePathname()
+
+  const userInitials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
 
   return (
     <div className="flex flex-col h-full">
@@ -83,7 +110,7 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
             Items
           </p>
         )}
-        {navItemTypes.map((type) => {
+        {itemTypes.map((type) => {
           const Icon = iconMap[type.icon as keyof typeof iconMap] ?? Code
           const href = `/items/${type.slug}`
           const isActive = pathname === href
@@ -107,9 +134,9 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
               {!collapsed && (
                 <>
                   <span>{type.name}s</span>
-                  {(itemTypeCounts[type.id] ?? 0) > 0 && (
+                  {type.itemCount > 0 && (
                     <span className="ml-auto text-xs text-muted-foreground">
-                      {itemTypeCounts[type.id]}
+                      {type.itemCount}
                     </span>
                   )}
                 </>
@@ -119,7 +146,7 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
         })}
 
         {/* FAVORITES section */}
-        {mockFavoriteCollections.length > 0 && (
+        {favoriteCollections.length > 0 && (
           <>
             <Separator className="my-2" />
             {!collapsed && (
@@ -127,7 +154,7 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
                 Favorites
               </p>
             )}
-            {mockFavoriteCollections.map((col) => (
+            {favoriteCollections.map((col) => (
               <Link
                 key={col.id}
                 href={`/collections/${col.id}`}
@@ -138,7 +165,7 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
                   collapsed && "justify-center"
                 )}
               >
-                <span className="size-1.5 rounded-full bg-yellow-400 shrink-0" />
+                <Star className="size-3 text-yellow-400 fill-yellow-400 shrink-0" />
                 {!collapsed && (
                   <>
                     <span className="truncate">{col.name}</span>
@@ -165,13 +192,22 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
                 href={`/collections/${col.id}`}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
               >
-                <span className="size-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
+                <span
+                  className="size-2 rounded-full shrink-0"
+                  style={{ backgroundColor: col.primaryColor ?? "#6b7280" }}
+                />
                 <span className="truncate">{col.name}</span>
                 <span className="ml-auto text-xs text-muted-foreground shrink-0">
                   {col.itemCount}
                 </span>
               </Link>
             ))}
+            <Link
+              href="/collections"
+              className="flex items-center px-2 py-1.5 rounded-md text-xs transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            >
+              View all collections
+            </Link>
           </>
         )}
       </nav>
@@ -185,12 +221,12 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
       >
         <div className={cn("flex items-center gap-2", collapsed && "flex-col")}>
           <Avatar className="size-7">
-            <AvatarImage src={mockUser.image ?? undefined} />
+            <AvatarImage src={userImage ?? undefined} />
             <AvatarFallback className="text-xs">{userInitials}</AvatarFallback>
           </Avatar>
           {!collapsed && (
             <span className="text-sm text-foreground truncate max-w-28">
-              {mockUser.name}
+              {userName}
             </span>
           )}
         </div>
@@ -212,11 +248,16 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
 
 export default function DashboardShell({
   children,
-}: {
-  children: React.ReactNode
-}) {
+  itemTypes,
+  favoriteCollections,
+  recentCollections,
+  userName,
+  userImage,
+}: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  const sidebarProps = { itemTypes, favoriteCollections, recentCollections, userName, userImage }
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -278,7 +319,7 @@ export default function DashboardShell({
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="w-64 p-0 flex flex-col">
             <SheetTitle className="sr-only">Navigation</SheetTitle>
-            <SidebarContent collapsed={false} />
+            <SidebarContent collapsed={false} {...sidebarProps} />
           </SheetContent>
         </Sheet>
 
@@ -310,7 +351,7 @@ export default function DashboardShell({
             </Button>
           </div>
 
-          <SidebarContent collapsed={collapsed} />
+          <SidebarContent collapsed={collapsed} {...sidebarProps} />
         </aside>
 
         {/* Main content */}
