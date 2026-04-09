@@ -84,6 +84,7 @@ async function main() {
         title: "useDebounce & useLocalStorage Hooks",
         description: "Common custom hooks for debouncing values and persisting state in localStorage.",
         contentType: "TEXT",
+        isPinned: true,
         language: "typescript",
         content: `import { useState, useEffect } from "react"
 
@@ -234,6 +235,7 @@ export function truncate(str: string, maxLength: number): string {
         title: "Code Review Prompt",
         description: "Thorough code review prompt for PRs and code changes.",
         contentType: "TEXT",
+        isPinned: true,
         content: `You are an expert software engineer performing a code review. Review the following code and provide structured feedback.
 
 ## What to check:

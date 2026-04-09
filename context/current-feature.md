@@ -70,3 +70,14 @@ Not Started
 - Collection cards show icons for all item types present, colored per type
 - Collections and Favorite Collections stats now show real counts from DB
 - Demo user (demo@devstash.io) used as temporary auth until NextAuth is implemented
+
+### Dashboard Items — Real Data — 2026-04-09
+
+- Created `src/lib/db/items.ts` with `getPinnedItems`, `getRecentItems`, and `getItemStats` functions
+- All 5 data fetches (collections + items) run in a single `Promise.all`
+- Item card icon and border color derived from real item type in DB
+- Total Items and Favorite Items stats now show real counts from DB
+- Pinned section only renders when pinned items exist
+- Mock data fully removed from dashboard page
+- Seeded two pinned items (useDebounce hook, Code Review Prompt) via `scripts/patch-pinned.ts`
+- Updated `prisma/seed.ts` to mark those items as pinned for future reseeds
