@@ -61,3 +61,12 @@ Not Started
 - Demo user seeded (demo@devstash.io / 12345678)
 - 7 system item types seeded
 - 5 collections with 14 items: React Patterns (3 snippets), AI Workflows (3 prompts), DevOps (1 snippet + 1 command + 2 links), Terminal Commands (4 commands), Design Resources (4 links)
+
+### Dashboard Collections — Real Data — 2026-04-09
+
+- Created `src/lib/db/collections.ts` with `getRecentCollections` and `getCollectionStats` functions
+- Dashboard page converted to async server component fetching from Neon DB via Prisma
+- Collection card border color derived from most-used item type in that collection
+- Collection cards show icons for all item types present, colored per type
+- Collections and Favorite Collections stats now show real counts from DB
+- Demo user (demo@devstash.io) used as temporary auth until NextAuth is implemented

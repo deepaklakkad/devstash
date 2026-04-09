@@ -14,13 +14,9 @@ import {
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import {
-  mockCollections,
-  mockFavoriteCollections,
-  mockItems,
-  mockItemTypes,
-  mockUser,
-} from "@/lib/mock-data"
+import { prisma } from "@/lib/db"
+import { getCollectionStats, getRecentCollections, type CollectionWithTypes } from "@/lib/db/collections"
+import { mockItems, mockItemTypes, mockUser } from "@/lib/mock-data"
 
 // ---------------------------------------------------------------------------
 // Lookups
@@ -37,25 +33,13 @@ const iconMap = {
 } as const
 
 const typeById = Object.fromEntries(mockItemTypes.map((t) => [t.id, t]))
-const typeBySlug = Object.fromEntries(mockItemTypes.map((t) => [t.slug, t]))
 
 // ---------------------------------------------------------------------------
-// Derived data
+// Helpers
 // ---------------------------------------------------------------------------
 
-const favoriteItems = mockItems.filter((i) => i.isFavorite)
-const pinnedItems = mockItems.filter((i) => i.isPinned)
-
-const recentCollections = [...mockCollections]
-  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  .slice(0, 4)
-
-const recentItems = [...mockItems]
-  .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-  .slice(0, 10)
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime()
+function timeAgo(date: Date | string): string {
+  const diff = Date.now() - new Date(date).getTime()
   const days = Math.floor(diff / 86400000)
   const hours = Math.floor(diff / 3600000)
   const minutes = Math.floor(diff / 60000)
@@ -92,13 +76,9 @@ function StatCard({
 // Collection Card — left border color = most frequent type, icons for all types
 // ---------------------------------------------------------------------------
 
-function CollectionCard({
-  col,
-}: {
-  col: (typeof mockCollections)[number]
-}) {
-  const primaryType = typeBySlug[col.typeSlugs[0]]
-  const borderColor = primaryType?.color ?? "#6b7280"
+function CollectionCard({ col }: { col: CollectionWithTypes }) {
+  const primarySlug = col.typeSlugs[0]
+  const borderColor = primarySlug ? (col.typeColors[primarySlug] ?? "#6b7280") : "#6b7280"
 
   return (
     <Link
@@ -119,21 +99,21 @@ function CollectionCard({
           </p>
         )}
         <div className="flex items-center gap-2 mt-3">
-          {/* Type icons */}
           {col.typeSlugs.map((slug) => {
-            const t = typeBySlug[slug]
-            if (!t) return null
-            const Icon = iconMap[t.icon as keyof typeof iconMap] ?? Code
+            const color = col.typeColors[slug]
+            const icon = col.typeIcons[slug]
+            if (!icon) return null
+            const Icon = iconMap[icon as keyof typeof iconMap] ?? Code
             return (
               <Icon
                 key={slug}
                 className="size-3.5 shrink-0"
-                style={{ color: t.color }}
+                style={{ color }}
               />
             )
           })}
           <span className="ml-auto text-xs text-muted-foreground">
-            {col.itemCount} items
+            {col.itemCount} {col.itemCount === 1 ? "item" : "items"}
           </span>
         </div>
       </div>
@@ -196,14 +176,30 @@ function ItemCard({ item }: { item: (typeof mockItems)[number] }) {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Temporary: use demo user until auth is implemented
+  const demoUser = await prisma.user.findUnique({ where: { email: "demo@devstash.io" } })
+  const userId = demoUser?.id ?? ""
+
+  const [recentCollections, collectionStats] = await Promise.all([
+    getRecentCollections(userId, 4),
+    getCollectionStats(userId),
+  ])
+
+  // Items still use mock data (items feature not yet implemented)
+  const favoriteItems = mockItems.filter((i) => i.isFavorite)
+  const pinnedItems = mockItems.filter((i) => i.isPinned)
+  const recentItems = [...mockItems]
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, 10)
+
   return (
     <div className="p-6 space-y-8 max-w-5xl mx-auto">
       {/* Title */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Welcome back, {mockUser.name}
+          Welcome back, {demoUser?.name ?? mockUser.name}
         </p>
       </div>
 
@@ -211,11 +207,11 @@ export default function DashboardPage() {
       <section>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard label="Total Items" value={mockItems.length} icon={Package} />
-          <StatCard label="Collections" value={mockCollections.length} icon={FolderOpen} />
+          <StatCard label="Collections" value={collectionStats.totalCollections} icon={FolderOpen} />
           <StatCard label="Favorite Items" value={favoriteItems.length} icon={Star} />
           <StatCard
             label="Favorite Collections"
-            value={mockFavoriteCollections.length}
+            value={collectionStats.favoriteCollections}
             icon={FolderOpen}
           />
         </div>
