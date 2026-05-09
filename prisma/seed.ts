@@ -57,6 +57,15 @@ async function main() {
   })
 
   // ============================================
+  // RESET DEMO USER DATA (idempotency)
+  // ============================================
+
+  console.log("Clearing existing demo user collections and items...")
+
+  await prisma.item.deleteMany({ where: { userId: user.id } })
+  await prisma.collection.deleteMany({ where: { userId: user.id } })
+
+  // ============================================
   // FETCH TYPE IDs
   // ============================================
 

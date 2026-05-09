@@ -2,7 +2,7 @@
 
 <!-- Feature Name -->
 
-## Stats & Sidebar — Real Data
+## Seed Data — Refresh from Spec
 
 ## Status
 
@@ -12,15 +12,22 @@ Completed
 
 ## Goals
 
-- Display stats cards from real database data, keeping current design/layout
-- Display system item types in sidebar with their icons, linking to `/items/[typename]`
-- Add "View all collections" link under the collections list going to `/collections`
-- Keep star icons for favorite collections; for recents, show a colored circle based on the most-used item type in that collection
+- Rewrite `prisma/seed.ts` so seed output matches `context/features/seed-spec.md` exactly
+- Seed demo user `demo@devstash.io` / `Demo User` / password `12345678` (bcryptjs, 12 rounds), `isPro: false`, `emailVerified: now()`
+- Seed 7 system item types (snippet, prompt, command, note, file, image, link) with the icons and colors in the spec, all `isSystem: true`
+- Seed 5 collections matching the spec, each with the spec's description and item composition:
+  - React Patterns — 3 TypeScript snippets (custom hooks, component patterns, utility functions)
+  - AI Workflows — 3 prompts (code review, doc generation, refactoring assistance)
+  - DevOps — 1 snippet + 1 command + 2 links (real URLs)
+  - Terminal Commands — 4 commands (git, docker, process management, package manager)
+  - Design Resources — 4 links (real URLs: CSS/Tailwind, component lib, design system, icons)
+- Make the seed idempotent (safe to re-run) so it can be used to reset dev data
 
 ## Notes
 
-- `src/lib/db/items.ts` already exists — reference it and `src/lib/db/collections.ts` for any new DB functions needed
-- Sidebar item types should come from DB (system types), not be hardcoded
+- Overwriting the existing `prisma/seed.ts` is allowed — replace it entirely if the spec needs it
+- Pinned items from the previous seed (useDebounce hook, Code Review Prompt) should remain pinned in the new seed where the spec includes them
+- Run via `npx prisma db seed` after changes to verify; dashboard should still render correctly afterwards
 
 ## History
 
@@ -103,3 +110,10 @@ Completed
 - Recent collections show a colored circle based on the collection's most-used item type
 - "View all collections" link added below the recents section, linking to `/collections`
 - User name and avatar in sidebar footer sourced from DB user record
+
+### Seed Data — Refresh from Spec — 2026-05-09
+
+- Initial migration `20260408183431_init` applied to dev Neon branch via `prisma migrate dev`
+- `prisma/seed.ts` made idempotent: clears the demo user's existing items and collections before re-seeding so `npx prisma db seed` is safe to re-run
+- Seed contents already matched `context/features/seed-spec.md` exactly (demo user, 7 system types, 5 collections / 18 items, 2 pinned), so no content changes needed
+- Verified by running `npx prisma db seed` twice — counts stayed at 5 collections / 18 items / 2 pinned
