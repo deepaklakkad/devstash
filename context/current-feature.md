@@ -2,7 +2,7 @@
 
 <!-- Feature Name -->
 
-## Dashboard Collections
+## Dashboard Items
 
 ## Status
 
@@ -12,20 +12,19 @@ Completed
 
 ## Goals
 
-- Replace dummy collection data in the dashboard's main area with real data from the Neon database via Prisma
-- Keep the existing layout: 6 cards of recent collections, no items underneath yet
-- Create `src/lib/db/collections.ts` with data-fetching functions
-- Fetch collections directly in a server component
-- Derive each collection card's border color from the most-used content type in that collection
-- Show small icons of all item types present in each collection
-- Update collection stats display
-- Stop sourcing collection data from `src/lib/mock-data.ts`
+- Replace dummy item data in the dashboard's main area (right side) — both pinned and recent items — with real data from the Neon database via Prisma
+- Create `src/lib/db/items.ts` with data-fetching functions
+- Fetch items directly in a server component
+- Derive item card icon and border color from each item's type
+- Display item type tags and the rest of the existing card content
+- Update the collection/item stats display to use real counts
+- Hide the pinned section entirely when there are no pinned items
+- Stop sourcing item data from `src/lib/mock-data.ts`
 
 ## Notes
 
-- Spec: `context/features/dashboard-collections-spec.md`
+- Spec: `context/features/dashboard-items-spec.md`
 - Reference screenshot: `context/screenshots/dashboard-ui-main.png` (layout/design already in place)
-- Items underneath the collections grid are out of scope for this pass — handled in a later feature
 
 ## History
 
@@ -113,3 +112,9 @@ Completed
 - `CollectionCard` in dashboard page now reads from `col.types` directly, replacing three parallel-map lookups with one pass
 - Added empty-`userId` short-circuits in `getRecentCollections`, `getFavoriteCollections`, `getCollectionStats` so unauthenticated/missing-user requests skip the DB
 - `npm run build` passes (5/5 static pages)
+
+### Dashboard Items — Spec Recheck — 2026-05-09
+
+- Verified every goal in `dashboard-items-spec.md` was already satisfied by the earlier 2026-04-09 work: `src/lib/db/items.ts` exposes `getPinnedItems`/`getRecentItems`/`getItemStats`/`getItemTypes`; `src/app/dashboard/page.tsx` server-fetches all data via `Promise.all`, derives item-card icon/border from item type, renders tag badges, gates the Pinned section on `pinnedItems.length > 0`, and pulls stats from the DB
+- Remaining `@/lib/mock-data` import is only in `src/app/items/[type]/page.tsx` (different route, outside this spec)
+- No code changes needed; closed out without a feature branch
