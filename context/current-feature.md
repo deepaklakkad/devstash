@@ -2,7 +2,7 @@
 
 <!-- Feature Name -->
 
-## Seed Data — Refresh from Spec
+## Dashboard Collections
 
 ## Status
 
@@ -12,22 +12,20 @@ Completed
 
 ## Goals
 
-- Rewrite `prisma/seed.ts` so seed output matches `context/features/seed-spec.md` exactly
-- Seed demo user `demo@devstash.io` / `Demo User` / password `12345678` (bcryptjs, 12 rounds), `isPro: false`, `emailVerified: now()`
-- Seed 7 system item types (snippet, prompt, command, note, file, image, link) with the icons and colors in the spec, all `isSystem: true`
-- Seed 5 collections matching the spec, each with the spec's description and item composition:
-  - React Patterns — 3 TypeScript snippets (custom hooks, component patterns, utility functions)
-  - AI Workflows — 3 prompts (code review, doc generation, refactoring assistance)
-  - DevOps — 1 snippet + 1 command + 2 links (real URLs)
-  - Terminal Commands — 4 commands (git, docker, process management, package manager)
-  - Design Resources — 4 links (real URLs: CSS/Tailwind, component lib, design system, icons)
-- Make the seed idempotent (safe to re-run) so it can be used to reset dev data
+- Replace dummy collection data in the dashboard's main area with real data from the Neon database via Prisma
+- Keep the existing layout: 6 cards of recent collections, no items underneath yet
+- Create `src/lib/db/collections.ts` with data-fetching functions
+- Fetch collections directly in a server component
+- Derive each collection card's border color from the most-used content type in that collection
+- Show small icons of all item types present in each collection
+- Update collection stats display
+- Stop sourcing collection data from `src/lib/mock-data.ts`
 
 ## Notes
 
-- Overwriting the existing `prisma/seed.ts` is allowed — replace it entirely if the spec needs it
-- Pinned items from the previous seed (useDebounce hook, Code Review Prompt) should remain pinned in the new seed where the spec includes them
-- Run via `npx prisma db seed` after changes to verify; dashboard should still render correctly afterwards
+- Spec: `context/features/dashboard-collections-spec.md`
+- Reference screenshot: `context/screenshots/dashboard-ui-main.png` (layout/design already in place)
+- Items underneath the collections grid are out of scope for this pass — handled in a later feature
 
 ## History
 
@@ -79,15 +77,6 @@ Completed
 - 7 system item types seeded
 - 5 collections with 14 items: React Patterns (3 snippets), AI Workflows (3 prompts), DevOps (1 snippet + 1 command + 2 links), Terminal Commands (4 commands), Design Resources (4 links)
 
-### Dashboard Collections — Real Data — 2026-04-09
-
-- Created `src/lib/db/collections.ts` with `getRecentCollections` and `getCollectionStats` functions
-- Dashboard page converted to async server component fetching from Neon DB via Prisma
-- Collection card border color derived from most-used item type in that collection
-- Collection cards show icons for all item types present, colored per type
-- Collections and Favorite Collections stats now show real counts from DB
-- Demo user (demo@devstash.io) used as temporary auth until NextAuth is implemented
-
 ### Dashboard Items — Real Data — 2026-04-09
 
 - Created `src/lib/db/items.ts` with `getPinnedItems`, `getRecentItems`, and `getItemStats` functions
@@ -117,3 +106,10 @@ Completed
 - `prisma/seed.ts` made idempotent: clears the demo user's existing items and collections before re-seeding so `npx prisma db seed` is safe to re-run
 - Seed contents already matched `context/features/seed-spec.md` exactly (demo user, 7 system types, 5 collections / 18 items, 2 pinned), so no content changes needed
 - Verified by running `npx prisma db seed` twice — counts stayed at 5 collections / 18 items / 2 pinned
+
+### Dashboard Collections — 2026-05-09
+
+- Reshaped `CollectionWithTypes` around a single `types: CollectionTypePresence[]` array (sorted by frequency, carries slug/icon/color/count together); kept `typeSlugs/typeColors/typeIcons` as derived fields for back-compat with the dashboard layout/sidebar
+- `CollectionCard` in dashboard page now reads from `col.types` directly, replacing three parallel-map lookups with one pass
+- Added empty-`userId` short-circuits in `getRecentCollections`, `getFavoriteCollections`, `getCollectionStats` so unauthenticated/missing-user requests skip the DB
+- `npm run build` passes (5/5 static pages)
