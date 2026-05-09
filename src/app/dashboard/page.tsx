@@ -74,9 +74,10 @@ function StatCard({
 // Collection Card
 // ---------------------------------------------------------------------------
 
+const FALLBACK_BORDER = "#6b7280"
+
 function CollectionCard({ col }: { col: CollectionWithTypes }) {
-  const primarySlug = col.typeSlugs[0]
-  const borderColor = primarySlug ? (col.typeColors[primarySlug] ?? "#6b7280") : "#6b7280"
+  const borderColor = col.types[0]?.color ?? FALLBACK_BORDER
 
   return (
     <Link
@@ -97,14 +98,9 @@ function CollectionCard({ col }: { col: CollectionWithTypes }) {
           </p>
         )}
         <div className="flex items-center gap-2 mt-3">
-          {col.typeSlugs.map((slug) => {
-            const color = col.typeColors[slug]
-            const icon = col.typeIcons[slug]
-            if (!icon) return null
-            const Icon = iconMap[icon as keyof typeof iconMap] ?? Code
-            return (
-              <Icon key={slug} className="size-3.5 shrink-0" style={{ color }} />
-            )
+          {col.types.map((t) => {
+            const Icon = iconMap[t.icon as keyof typeof iconMap] ?? Code
+            return <Icon key={t.slug} className="size-3.5 shrink-0" style={{ color: t.color }} />
           })}
           <span className="ml-auto text-xs text-muted-foreground">
             {col.itemCount} {col.itemCount === 1 ? "item" : "items"}
