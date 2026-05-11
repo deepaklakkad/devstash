@@ -23,6 +23,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -114,6 +115,7 @@ function SidebarContent({
           const Icon = iconMap[type.icon as keyof typeof iconMap] ?? Code
           const href = `/items/${type.slug}`
           const isActive = pathname === href
+          const isPro = type.slug === "file" || type.slug === "image"
 
           return (
             <Link
@@ -134,10 +136,19 @@ function SidebarContent({
               {!collapsed && (
                 <>
                   <span>{type.name}s</span>
-                  {type.itemCount > 0 && (
-                    <span className="ml-auto text-xs text-muted-foreground">
-                      {type.itemCount}
-                    </span>
+                  {isPro ? (
+                    <Badge
+                      variant="secondary"
+                      className="ml-auto h-4 px-1.5 text-[10px] font-medium tracking-wider"
+                    >
+                      PRO
+                    </Badge>
+                  ) : (
+                    type.itemCount > 0 && (
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {type.itemCount}
+                      </span>
+                    )
                   )}
                 </>
               )}

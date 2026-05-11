@@ -1,30 +1,26 @@
-# Current Feature
+# Current Feature: Add Pro Badge to Sidebar
 
 <!-- Feature Name -->
 
-## Dashboard Items
+## Add Pro Badge to Sidebar
 
 ## Status
 
 <!-- Not Started|In Progress|Completed -->
 
-Completed
+In Progress
 
 ## Goals
 
-- Replace dummy item data in the dashboard's main area (right side) — both pinned and recent items — with real data from the Neon database via Prisma
-- Create `src/lib/db/items.ts` with data-fetching functions
-- Fetch items directly in a server component
-- Derive item card icon and border color from each item's type
-- Display item type tags and the rest of the existing card content
-- Update the collection/item stats display to use real counts
-- Hide the pinned section entirely when there are no pinned items
-- Stop sourcing item data from `src/lib/mock-data.ts`
+- Add a "PRO" badge to the Files and Images entries in the sidebar item-types list
+- Use the shadcn/ui Badge component
+- Keep the badge styling clean and subtle (non-distracting next to the nav link)
+- Display the badge label as "PRO" in all uppercase
 
 ## Notes
 
-- Spec: `context/features/dashboard-items-spec.md`
-- Reference screenshot: `context/screenshots/dashboard-ui-main.png` (layout/design already in place)
+- Spec: `context/features/add-pro-badge-sidebar.md`
+- Files and Images are Pro-only item types per the project overview's Type System table; badge signals that to the user in the sidebar
 
 ## History
 
