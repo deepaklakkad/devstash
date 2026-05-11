@@ -1,26 +1,14 @@
-# Current Feature: Add Pro Badge to Sidebar
+# Current Feature
 
 <!-- Feature Name -->
-
-## Add Pro Badge to Sidebar
 
 ## Status
 
 <!-- Not Started|In Progress|Completed -->
 
-In Progress
-
 ## Goals
 
-- Add a "PRO" badge to the Files and Images entries in the sidebar item-types list
-- Use the shadcn/ui Badge component
-- Keep the badge styling clean and subtle (non-distracting next to the nav link)
-- Display the badge label as "PRO" in all uppercase
-
 ## Notes
-
-- Spec: `context/features/add-pro-badge-sidebar.md`
-- Files and Images are Pro-only item types per the project overview's Type System table; badge signals that to the user in the sidebar
 
 ## History
 
@@ -114,3 +102,11 @@ In Progress
 - Verified every goal in `dashboard-items-spec.md` was already satisfied by the earlier 2026-04-09 work: `src/lib/db/items.ts` exposes `getPinnedItems`/`getRecentItems`/`getItemStats`/`getItemTypes`; `src/app/dashboard/page.tsx` server-fetches all data via `Promise.all`, derives item-card icon/border from item type, renders tag badges, gates the Pinned section on `pinnedItems.length > 0`, and pulls stats from the DB
 - Remaining `@/lib/mock-data` import is only in `src/app/items/[type]/page.tsx` (different route, outside this spec)
 - No code changes needed; closed out without a feature branch
+
+### Add Pro Badge to Sidebar — 2026-05-11
+
+- Imported shadcn/ui `Badge` into `src/components/dashboard/dashboard-shell.tsx`
+- Added `isPro = type.slug === "file" || type.slug === "image"` check in the sidebar item-types map
+- For Files and Images rows, render a subtle secondary-variant `PRO` badge (`h-4 px-1.5 text-[10px] tracking-wider`) in the trailing slot instead of the item count
+- All other item types keep the existing conditional count display unchanged; collapsed sidebar state is untouched
+- `npm run build` passes
