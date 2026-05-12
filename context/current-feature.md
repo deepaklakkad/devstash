@@ -1,37 +1,14 @@
 # Current Feature
 
-Codebase Audit — Quick Wins
+<!-- Feature Name -->
 
 ## Status
 
-In Progress
+<!-- Not Started|In Progress|Completed -->
 
 ## Goals
 
-Apply the low-risk findings from the 2026-05-12 codebase audit. Excludes the hardcoded demo-email finding (deferred until auth is wired in) and the larger refactors (sidebar/page component extraction, `items/[type]` mock-to-DB migration).
-
-1. **Cap `getPinnedItems` query** — add a `take: 20` limit to `getPinnedItems` in `src/lib/db/items.ts` so a user who pins many items can't degrade dashboard performance. Existing `isPinned` index on `Item` already covers the query — no schema change needed.
-2. **Deduplicate `getRecentCollections` query (N+1-style double-fetch)** — `src/app/dashboard/layout.tsx` and `src/app/dashboard/page.tsx` both call `getRecentCollections` on the same render (one with `limit: 3` for the sidebar, one with `limit: 4` for the main grid). Fix using standard Prisma + React conventions — no raw SQL. Preferred approach: fetch the larger set (limit 4) once in the layout and pass the result down as a prop to the page, slicing to 3 for the sidebar. Alternative: wrap `getRecentCollections` in React's `cache()` (from `react`) for per-request memoization, which keeps the Prisma call shape unchanged.
-3. **Extract shared `iconMap`** — move the duplicated `iconMap` object (currently in both `src/app/dashboard/page.tsx` and `src/components/dashboard/dashboard-shell.tsx`) into a new `src/lib/icon-map.ts` and import from both consumers.
-4. **Import `SidebarItemType` instead of re-declaring** — `src/components/dashboard/dashboard-shell.tsx` re-declares a structurally identical `SidebarItemType`. Replace with `import type { SidebarItemType } from "@/lib/db/items"`.
-5. **Extract `PRO_ONLY_TYPE_SLUGS` constant** — the `slug === "file" || slug === "image"` check appears in 3 places (`layout.tsx` once as a filter, `dashboard-shell.tsx` once). Add `src/lib/item-types.ts` exporting `PRO_ONLY_TYPE_SLUGS` (a `Set`) and an `isProType(slug)` helper. Update both call sites.
-6. **Use `col.types[0]?.color` directly + drop back-compat fields** — `src/app/dashboard/layout.tsx` (lines 37, 44) still uses `typeSlugs[0]` / `typeColors[…]` against `CollectionWithTypes`. Switch to `col.types[0]?.color`, then remove the now-unused `typeSlugs` / `typeColors` / `typeIcons` fields from `CollectionWithTypes` and from the mapper in `src/lib/db/collections.ts`.
-7. **Switch seed system-types loop to `upsert`** — `prisma/seed.ts` lines ~30-37 use a `findFirst` + conditional `create` pattern. Replace with a single `prisma.itemType.upsert({ where: { slug_userId: { slug, userId: null } }, update: {}, create: type })` per type.
-
-Out of scope:
-
-- Replace hardcoded `demo@devstash.io` identity anchor (deferred — needs auth).
-- Migrate `src/app/items/[type]/page.tsx` off `mockItemTypes` (separate feature; touches a different route).
-- Delete unused exports in `src/lib/mock-data.ts` (leaving the file as-is per user direction).
-- Extract `SidebarContent` sub-components and lift `StatCard` / `CollectionCard` / `ItemCard` out of `dashboard/page.tsx` (larger refactors, kept for a follow-up).
-
 ## Notes
-
-- Each change should be small and independently verifiable; group them in a single branch but commit logically per concern if helpful.
-- After every change, run `npm run build` and click through the dashboard in the browser before committing.
-- For #2: stick to Prisma conventions — no raw SQL. The prop-passing fix is the simplest and keeps the layout as the single source of truth for the sidebar+page recents set.
-- When dropping the back-compat fields (#6), grep for `typeSlugs`, `typeColors`, `typeIcons` to confirm no other consumers exist before removing.
-- **Database / indexes:** none of the items above require schema or index changes. If that changes during implementation (e.g. a new index becomes useful), **always** add it via `npx prisma migrate dev --name <descriptive>` and commit the generated migration SQL — never `prisma db push`, never edit indexes only in `schema.prisma`. The dev Neon branch and prod branch must stay in sync via committed migrations.
 
 ## History
 
@@ -133,3 +110,14 @@ Out of scope:
 - For Files and Images rows, render a subtle secondary-variant `PRO` badge (`h-4 px-1.5 text-[10px] tracking-wider`) in the trailing slot instead of the item count
 - All other item types keep the existing conditional count display unchanged; collapsed sidebar state is untouched
 - `npm run build` passes
+
+### Codebase Audit — Quick Wins — 2026-05-12
+
+- Capped `getPinnedItems` with a `take: 20` default limit (signature now takes an optional `limit`)
+- Wrapped `getRecentCollections` in React's `cache()` so the layout + page share a single Prisma call per request; aligned both call sites to `limit=4` and sliced to 3 in the sidebar
+- Extracted shared `iconMap` to `src/lib/icon-map.ts`; both `dashboard/page.tsx` and `dashboard-shell.tsx` now import it
+- `dashboard-shell.tsx` now imports `SidebarItemType` from `@/lib/db/items` instead of re-declaring a structurally identical local copy
+- Extracted `PRO_ONLY_TYPE_SLUGS` set + `isProType()` helper to `src/lib/item-types.ts`; replaced inline `slug === "file" || slug === "image"` checks in `layout.tsx` and `dashboard-shell.tsx`
+- Dropped the `typeSlugs` / `typeColors` / `typeIcons` back-compat fields from `CollectionWithTypes` and the `shapeCollection` mapper; layout now reads `col.types[0]?.color` directly
+- Switched `prisma/seed.ts` system-types loop from `findFirst` + conditional `create` to a single `prisma.itemType.upsert` against the `slug_userId` compound unique
+- `npm run build` passes; `/dashboard` responds 200 with no runtime errors
