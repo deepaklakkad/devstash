@@ -1,0 +1,1 @@
+- [DevStash Project Conventions](project_conventions.md) — auth pre-wired, .env gitignored, Tailwind v4 CSS config, mock-data.ts still live, pro-type magic strings are a recurring pattern
