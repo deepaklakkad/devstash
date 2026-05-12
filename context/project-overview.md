@@ -26,15 +26,15 @@ A modern SaaS platform that consolidates scattered developer essentials—code s
 
 Developers keep their essentials scattered across multiple platforms:
 
-| Resource | Current Location |
-|----------|------------------|
-| Code snippets | VS Code, Notion |
-| AI prompts | Chat histories |
-| Context files | Buried in projects |
-| Useful links | Browser bookmarks |
-| Documentation | Random folders |
-| Commands | `.txt` files, bash history |
-| Templates | GitHub Gists |
+| Resource      | Current Location           |
+| ------------- | -------------------------- |
+| Code snippets | VS Code, Notion            |
+| AI prompts    | Chat histories             |
+| Context files | Buried in projects         |
+| Useful links  | Browser bookmarks          |
+| Documentation | Random folders             |
+| Commands      | `.txt` files, bash history |
+| Templates     | GitHub Gists               |
 
 **Result:** Context switching, lost knowledge, and inconsistent workflows.
 
@@ -44,12 +44,12 @@ Developers keep their essentials scattered across multiple platforms:
 
 ## Target Users
 
-| User Type | Description | Primary Use Cases |
-|-----------|-------------|-------------------|
-| 🧑‍💻 **Everyday Developer** | Needs quick access to resources | Grab snippets, prompts, commands, links |
-| 🤖 **AI-first Developer** | Works heavily with AI tools | Save prompts, contexts, workflows, system messages |
-| 📚 **Content Creator / Educator** | Creates educational content | Store code blocks, explanations, course notes |
-| 🛠️ **Full-stack Builder** | Builds diverse applications | Collect patterns, boilerplates, API examples |
+| User Type                         | Description                     | Primary Use Cases                                  |
+| --------------------------------- | ------------------------------- | -------------------------------------------------- |
+| 🧑‍💻 **Everyday Developer**         | Needs quick access to resources | Grab snippets, prompts, commands, links            |
+| 🤖 **AI-first Developer**         | Works heavily with AI tools     | Save prompts, contexts, workflows, system messages |
+| 📚 **Content Creator / Educator** | Creates educational content     | Store code blocks, explanations, course notes      |
+| 🛠️ **Full-stack Builder**         | Builds diverse applications     | Collect patterns, boilerplates, API examples       |
 
 ---
 
@@ -61,15 +61,15 @@ Items are the core unit of DevStash. Each item has a **type** that determines it
 
 **System Types** (immutable):
 
-| Type | Content Type | Icon | Description |
-|------|--------------|------|-------------|
-| `snippet` | text | `Code` | Code snippets with syntax highlighting |
-| `prompt` | text | `Sparkles` | AI prompts and system messages |
-| `note` | text | `StickyNote` | Markdown notes and documentation |
-| `command` | text | `Terminal` | CLI commands and scripts |
-| `file` | file | `File` | File uploads *(Pro only)* |
-| `image` | file | `Image` | Image uploads *(Pro only)* |
-| `link` | url | `Link` | External URLs and bookmarks |
+| Type      | Content Type | Icon         | Description                            |
+| --------- | ------------ | ------------ | -------------------------------------- |
+| `snippet` | text         | `Code`       | Code snippets with syntax highlighting |
+| `prompt`  | text         | `Sparkles`   | AI prompts and system messages         |
+| `note`    | text         | `StickyNote` | Markdown notes and documentation       |
+| `command` | text         | `Terminal`   | CLI commands and scripts               |
+| `file`    | file         | `File`       | File uploads _(Pro only)_              |
+| `image`   | file         | `Image`      | Image uploads _(Pro only)_             |
+| `link`    | url          | `Link`       | External URLs and bookmarks            |
 
 **URL Structure:** `/items/{type}` (e.g., `/items/snippets`, `/items/prompts`)
 
@@ -78,6 +78,7 @@ Items are the core unit of DevStash. Each item has a **type** that determines it
 Organize items into themed collections. Items can belong to multiple collections.
 
 **Examples:**
+
 - React Patterns → snippets, notes
 - Context Files → files
 - Python Snippets → snippets
@@ -86,6 +87,7 @@ Organize items into themed collections. Items can belong to multiple collections
 ### C. Search
 
 Full-text search across:
+
 - ✅ Content
 - ✅ Tags
 - ✅ Titles
@@ -98,27 +100,27 @@ Full-text search across:
 
 ### E. Core Features
 
-| Feature | Description |
-|---------|-------------|
-| Favorites | Mark collections and items as favorites |
-| Pin to Top | Pin important items for quick access |
-| Recently Used | Track and display recently accessed items |
-| Import Code | Import code from uploaded files |
-| Markdown Editor | Rich editing for text-based types |
-| File Upload | Upload files and images *(Pro)* |
-| Export Data | Export as JSON/ZIP *(Pro)* |
-| Dark Mode | Default theme (light mode optional) |
+| Feature          | Description                                   |
+| ---------------- | --------------------------------------------- |
+| Favorites        | Mark collections and items as favorites       |
+| Pin to Top       | Pin important items for quick access          |
+| Recently Used    | Track and display recently accessed items     |
+| Import Code      | Import code from uploaded files               |
+| Markdown Editor  | Rich editing for text-based types             |
+| File Upload      | Upload files and images _(Pro)_               |
+| Export Data      | Export as JSON/ZIP _(Pro)_                    |
+| Dark Mode        | Default theme (light mode optional)           |
 | Multi-collection | Add/remove items to/from multiple collections |
-| Collection View | See which collections an item belongs to |
+| Collection View  | See which collections an item belongs to      |
 
-### F. AI Features *(Pro Only)*
+### F. AI Features _(Pro Only)_
 
-| Feature | Description |
-|---------|-------------|
-| 🏷️ Auto-tag Suggestions | AI-powered tag recommendations |
-| 📝 AI Summaries | Generate summaries of items |
-| 💡 Explain This Code | AI code explanation |
-| ⚡ Prompt Optimizer | Improve AI prompt effectiveness |
+| Feature                 | Description                     |
+| ----------------------- | ------------------------------- |
+| 🏷️ Auto-tag Suggestions | AI-powered tag recommendations  |
+| 📝 AI Summaries         | Generate summaries of items     |
+| 💡 Explain This Code    | AI code explanation             |
+| ⚡ Prompt Optimizer     | Improve AI prompt effectiveness |
 
 ---
 
@@ -149,19 +151,19 @@ model User {
   emailVerified        DateTime?
   image                String?
   password             String?   // For email/password auth
-  
+
   // Pro subscription
   isPro                Boolean   @default(false)
   stripeCustomerId     String?   @unique
   stripeSubscriptionId String?   @unique
-  
+
   // Relations
   items                Item[]
   collections          Collection[]
   itemTypes            ItemType[]
   accounts             Account[]
   sessions             Session[]
-  
+
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 }
@@ -209,35 +211,35 @@ model Item {
   id          String   @id @default(cuid())
   title       String
   description String?  @db.Text
-  
+
   // Content
   contentType ContentType @default(TEXT)
   content     String?     @db.Text    // For text types
   url         String?                 // For link types
-  
+
   // File storage (for file/image types)
   fileUrl     String?                 // Cloudflare R2 URL
   fileName    String?                 // Original filename
   fileSize    Int?                    // Size in bytes
-  
+
   // Metadata
   language    String?                 // Programming language (for code)
   isFavorite  Boolean  @default(false)
   isPinned    Boolean  @default(false)
-  
+
   // Relations
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   itemTypeId  String
   itemType    ItemType @relation(fields: [itemTypeId], references: [id])
-  
+
   tags        TagsOnItems[]
   collections ItemsOnCollections[]
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@index([userId])
   @@index([itemTypeId])
   @@index([isFavorite])
@@ -261,16 +263,16 @@ model ItemType {
   icon     String
   color    String  // Hex color code
   isSystem Boolean @default(false)
-  
+
   // Relations (null userId = system type)
   userId   String?
   user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   items    Item[]
-  
+
   // Default type for collections
   defaultForCollections Collection[]
-  
+
   @@unique([slug, userId])
   @@index([isSystem])
 }
@@ -284,20 +286,20 @@ model Collection {
   name        String
   description String? @db.Text
   isFavorite  Boolean @default(false)
-  
+
   // Relations
   userId      String
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Default type for new items in this collection
   defaultTypeId String?
   defaultType   ItemType? @relation(fields: [defaultTypeId], references: [id])
-  
+
   items       ItemsOnCollections[]
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@index([userId])
   @@index([isFavorite])
 }
@@ -395,48 +397,49 @@ model TagsOnItems {
 
 ### Core Framework
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| [Next.js](https://nextjs.org/) | 16 | Full-stack React framework |
-| [React](https://react.dev/) | 19 | UI library |
-| [TypeScript](https://www.typescriptlang.org/) | Latest | Type safety |
+| Technology                                    | Version | Purpose                    |
+| --------------------------------------------- | ------- | -------------------------- |
+| [Next.js](https://nextjs.org/)                | 16      | Full-stack React framework |
+| [React](https://react.dev/)                   | 19      | UI library                 |
+| [TypeScript](https://www.typescriptlang.org/) | Latest  | Type safety                |
 
 ### Database & ORM
 
-| Technology | Purpose |
-|------------|---------|
-| [Neon](https://neon.tech/) | Serverless PostgreSQL |
-| [Prisma](https://www.prisma.io/) | ORM (v7) |
-| Redis | Caching *(optional)* |
+| Technology                       | Purpose               |
+| -------------------------------- | --------------------- |
+| [Neon](https://neon.tech/)       | Serverless PostgreSQL |
+| [Prisma](https://www.prisma.io/) | ORM (v7)              |
+| Redis                            | Caching _(optional)_  |
 
 ### Authentication
 
-| Technology | Purpose |
-|------------|---------|
+| Technology                         | Purpose             |
+| ---------------------------------- | ------------------- |
 | [NextAuth.js](https://authjs.dev/) | Authentication (v5) |
 
 **Providers:**
+
 - Email/password
 - GitHub OAuth
 
 ### File Storage
 
-| Technology | Purpose |
-|------------|---------|
+| Technology                                               | Purpose              |
+| -------------------------------------------------------- | -------------------- |
 | [Cloudflare R2](https://www.cloudflare.com/products/r2/) | File & image uploads |
 
 ### AI Integration
 
-| Technology | Model | Purpose |
-|------------|-------|---------|
+| Technology                    | Model      | Purpose                                                           |
+| ----------------------------- | ---------- | ----------------------------------------------------------------- |
 | [OpenAI](https://openai.com/) | gpt-5-nano | AI features (auto-tag, summaries, explain code, prompt optimizer) |
 
 ### Styling
 
-| Technology | Purpose |
-|------------|---------|
+| Technology                               | Purpose                |
+| ---------------------------------------- | ---------------------- |
 | [Tailwind CSS](https://tailwindcss.com/) | Utility-first CSS (v4) |
-| [shadcn/ui](https://ui.shadcn.com/) | Component library |
+| [shadcn/ui](https://ui.shadcn.com/)      | Component library      |
 
 ---
 
@@ -487,12 +490,12 @@ model TagsOnItems {
 
 Refer to the screenshots below as a base for the dashboard UI. It does not have to be exact. User it as a reference:
 
-- @context/screenshots/ui-dashboard.png
-- @context/screenshots/ui-drawer.png
+- @context/screenshots/dashboard-ui-main.png
+- @context/screenshots/dashboard-ui-drawer.png
 
 ### Layout Structure
 
-```
+````
 ┌────────────────────────────────────────────────────────────────────┐
 │  Logo    Search...                              [+] New   [Avatar] │
 ├──────────┬─────────────────────────────────────────────────────────┤
@@ -528,7 +531,7 @@ Refer to the screenshots below as a base for the dashboard UI. It does not have 
                     │  ...                  │
                     │  ```                  │
                     └───────────────────────┘
-```
+````
 
 ### Responsive Behavior
 
@@ -548,57 +551,99 @@ Refer to the screenshots below as a base for the dashboard UI. It does not have 
 
 ### System Types Configuration
 
-| Type | Slug | Color | Icon | Content Type |
-|------|------|-------|------|--------------|
-| Snippet | `snippet` | `#3b82f6` (blue) | `Code` | text |
-| Prompt | `prompt` | `#8b5cf6` (purple) | `Sparkles` | text |
-| Command | `command` | `#f97316` (orange) | `Terminal` | text |
-| Note | `note` | `#fde047` (yellow) | `StickyNote` | text |
-| File | `file` | `#6b7280` (gray) | `File` | file |
-| Image | `image` | `#ec4899` (pink) | `Image` | file |
-| Link | `link` | `#10b981` (emerald) | `Link` | url |
+| Type    | Slug      | Color               | Icon         | Content Type |
+| ------- | --------- | ------------------- | ------------ | ------------ |
+| Snippet | `snippet` | `#3b82f6` (blue)    | `Code`       | text         |
+| Prompt  | `prompt`  | `#8b5cf6` (purple)  | `Sparkles`   | text         |
+| Command | `command` | `#f97316` (orange)  | `Terminal`   | text         |
+| Note    | `note`    | `#fde047` (yellow)  | `StickyNote` | text         |
+| File    | `file`    | `#6b7280` (gray)    | `File`       | file         |
+| Image   | `image`   | `#ec4899` (pink)    | `Image`      | file         |
+| Link    | `link`    | `#10b981` (emerald) | `Link`       | url          |
 
 ### Seed Data
 
 ```typescript
 // prisma/seed.ts
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 const systemTypes = [
-  { name: 'Snippet', slug: 'snippet', icon: 'Code', color: '#3b82f6', isSystem: true },
-  { name: 'Prompt', slug: 'prompt', icon: 'Sparkles', color: '#8b5cf6', isSystem: true },
-  { name: 'Command', slug: 'command', icon: 'Terminal', color: '#f97316', isSystem: true },
-  { name: 'Note', slug: 'note', icon: 'StickyNote', color: '#fde047', isSystem: true },
-  { name: 'File', slug: 'file', icon: 'File', color: '#6b7280', isSystem: true },
-  { name: 'Image', slug: 'image', icon: 'Image', color: '#ec4899', isSystem: true },
-  { name: 'Link', slug: 'link', icon: 'Link', color: '#10b981', isSystem: true },
-]
+  {
+    name: "Snippet",
+    slug: "snippet",
+    icon: "Code",
+    color: "#3b82f6",
+    isSystem: true,
+  },
+  {
+    name: "Prompt",
+    slug: "prompt",
+    icon: "Sparkles",
+    color: "#8b5cf6",
+    isSystem: true,
+  },
+  {
+    name: "Command",
+    slug: "command",
+    icon: "Terminal",
+    color: "#f97316",
+    isSystem: true,
+  },
+  {
+    name: "Note",
+    slug: "note",
+    icon: "StickyNote",
+    color: "#fde047",
+    isSystem: true,
+  },
+  {
+    name: "File",
+    slug: "file",
+    icon: "File",
+    color: "#6b7280",
+    isSystem: true,
+  },
+  {
+    name: "Image",
+    slug: "image",
+    icon: "Image",
+    color: "#ec4899",
+    isSystem: true,
+  },
+  {
+    name: "Link",
+    slug: "link",
+    icon: "Link",
+    color: "#10b981",
+    isSystem: true,
+  },
+];
 
 async function main() {
-  console.log('Seeding system item types...')
-  
+  console.log("Seeding system item types...");
+
   for (const type of systemTypes) {
     await prisma.itemType.upsert({
       where: { slug_userId: { slug: type.slug, userId: null } },
       update: {},
       create: type,
-    })
+    });
   }
-  
-  console.log('✓ Seeding complete')
+
+  console.log("✓ Seeding complete");
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
 ```
 
 ---
@@ -656,48 +701,48 @@ main()
 
 ### Items
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| `GET` | `/api/items` | List all items (with filters) |
-| `GET` | `/api/items/:id` | Get single item |
-| `POST` | `/api/items` | Create new item |
-| `PATCH` | `/api/items/:id` | Update item |
-| `DELETE` | `/api/items/:id` | Delete item |
-| `POST` | `/api/items/:id/favorite` | Toggle favorite |
-| `POST` | `/api/items/:id/pin` | Toggle pin |
+| Method   | Route                     | Description                   |
+| -------- | ------------------------- | ----------------------------- |
+| `GET`    | `/api/items`              | List all items (with filters) |
+| `GET`    | `/api/items/:id`          | Get single item               |
+| `POST`   | `/api/items`              | Create new item               |
+| `PATCH`  | `/api/items/:id`          | Update item                   |
+| `DELETE` | `/api/items/:id`          | Delete item                   |
+| `POST`   | `/api/items/:id/favorite` | Toggle favorite               |
+| `POST`   | `/api/items/:id/pin`      | Toggle pin                    |
 
 ### Collections
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| `GET` | `/api/collections` | List all collections |
-| `GET` | `/api/collections/:id` | Get collection with items |
-| `POST` | `/api/collections` | Create new collection |
-| `PATCH` | `/api/collections/:id` | Update collection |
-| `DELETE` | `/api/collections/:id` | Delete collection |
-| `POST` | `/api/collections/:id/items` | Add items to collection |
+| Method   | Route                                | Description                 |
+| -------- | ------------------------------------ | --------------------------- |
+| `GET`    | `/api/collections`                   | List all collections        |
+| `GET`    | `/api/collections/:id`               | Get collection with items   |
+| `POST`   | `/api/collections`                   | Create new collection       |
+| `PATCH`  | `/api/collections/:id`               | Update collection           |
+| `DELETE` | `/api/collections/:id`               | Delete collection           |
+| `POST`   | `/api/collections/:id/items`         | Add items to collection     |
 | `DELETE` | `/api/collections/:id/items/:itemId` | Remove item from collection |
 
 ### Search
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| `GET` | `/api/search?q=...` | Search across all content |
+| Method | Route               | Description               |
+| ------ | ------------------- | ------------------------- |
+| `GET`  | `/api/search?q=...` | Search across all content |
 
-### AI *(Pro)*
+### AI _(Pro)_
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/ai/tags` | Generate tag suggestions |
-| `POST` | `/api/ai/summary` | Generate item summary |
-| `POST` | `/api/ai/explain` | Explain code |
-| `POST` | `/api/ai/optimize-prompt` | Optimize prompt |
+| Method | Route                     | Description              |
+| ------ | ------------------------- | ------------------------ |
+| `POST` | `/api/ai/tags`            | Generate tag suggestions |
+| `POST` | `/api/ai/summary`         | Generate item summary    |
+| `POST` | `/api/ai/explain`         | Explain code             |
+| `POST` | `/api/ai/optimize-prompt` | Optimize prompt          |
 
-### Upload *(Pro)*
+### Upload _(Pro)_
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/upload` | Upload file to R2 |
+| Method   | Route              | Description         |
+| -------- | ------------------ | ------------------- |
+| `POST`   | `/api/upload`      | Upload file to R2   |
 | `DELETE` | `/api/upload/:key` | Delete file from R2 |
 
 ---
@@ -760,25 +805,25 @@ STRIPE_PRO_PRICE_ID="price_..."
 
 ### Useful Links
 
-| Resource | URL |
-|----------|-----|
-| Next.js Docs | https://nextjs.org/docs |
-| Prisma Docs | https://www.prisma.io/docs |
-| NextAuth.js Docs | https://authjs.dev |
-| Tailwind CSS Docs | https://tailwindcss.com/docs |
-| shadcn/ui Docs | https://ui.shadcn.com |
+| Resource           | URL                                  |
+| ------------------ | ------------------------------------ |
+| Next.js Docs       | https://nextjs.org/docs              |
+| Prisma Docs        | https://www.prisma.io/docs           |
+| NextAuth.js Docs   | https://authjs.dev                   |
+| Tailwind CSS Docs  | https://tailwindcss.com/docs         |
+| shadcn/ui Docs     | https://ui.shadcn.com                |
 | Cloudflare R2 Docs | https://developers.cloudflare.com/r2 |
-| Neon Docs | https://neon.tech/docs |
-| OpenAI API Docs | https://platform.openai.com/docs |
-| Stripe Docs | https://stripe.com/docs |
+| Neon Docs          | https://neon.tech/docs               |
+| OpenAI API Docs    | https://platform.openai.com/docs     |
+| Stripe Docs        | https://stripe.com/docs              |
 
 ---
 
 ## Changelog
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 0.1.0 | - | Initial project specification |
+| Version | Date | Changes                       |
+| ------- | ---- | ----------------------------- |
+| 0.1.0   | -    | Initial project specification |
 
 ---
 
