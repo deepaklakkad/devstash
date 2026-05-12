@@ -1,36 +1,11 @@
 import Link from "next/link"
-import {
-  Code,
-  File,
-  FolderOpen,
-  Image,
-  Link as LinkIcon,
-  Package,
-  Pin,
-  StickyNote,
-  Sparkles,
-  Star,
-  Terminal,
-} from "lucide-react"
+import { Code, FolderOpen, Package, Pin, Star } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { prisma } from "@/lib/db"
 import { getCollectionStats, getRecentCollections, type CollectionWithTypes } from "@/lib/db/collections"
 import { getItemStats, getPinnedItems, getRecentItems, type ItemWithType } from "@/lib/db/items"
-
-// ---------------------------------------------------------------------------
-// Icon map
-// ---------------------------------------------------------------------------
-
-const iconMap = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link: LinkIcon,
-} as const
+import { iconMap } from "@/lib/icon-map"
 
 // ---------------------------------------------------------------------------
 // Helpers

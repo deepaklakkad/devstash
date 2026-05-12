@@ -29,10 +29,11 @@ export type ItemStats = {
   favoriteItems: number
 }
 
-export async function getPinnedItems(userId: string): Promise<ItemWithType[]> {
+export async function getPinnedItems(userId: string, limit = 20): Promise<ItemWithType[]> {
   const items = await prisma.item.findMany({
     where: { userId, isPinned: true },
     orderBy: { updatedAt: "desc" },
+    take: limit,
     include: {
       itemType: { select: { slug: true, icon: true, color: true } },
       tags: { include: { tag: { select: { name: true } } } },

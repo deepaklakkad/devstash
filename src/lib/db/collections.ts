@@ -1,3 +1,4 @@
+import { cache } from "react"
 import { prisma } from "@/lib/db"
 
 export type CollectionTypePresence = {
@@ -15,10 +16,6 @@ export type CollectionWithTypes = {
   itemCount: number
   /** Item types present in this collection, sorted most-frequent first. */
   types: CollectionTypePresence[]
-  /** Convenience lookups kept for back-compat with existing consumers. */
-  typeSlugs: string[]
-  typeColors: Record<string, string>
-  typeIcons: Record<string, string>
   createdAt: Date
 }
 
@@ -27,21 +24,20 @@ export type CollectionStats = {
   favoriteCollections: number
 }
 
-export async function getRecentCollections(
-  userId: string,
-  limit = 4,
-): Promise<CollectionWithTypes[]> {
-  if (!userId) return []
+export const getRecentCollections = cache(
+  async (userId: string, limit = 4): Promise<CollectionWithTypes[]> => {
+    if (!userId) return []
 
-  const rows = await prisma.collection.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    include: collectionInclude,
-  })
+    const rows = await prisma.collection.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      include: collectionInclude,
+    })
 
-  return rows.map(shapeCollection)
-}
+    return rows.map(shapeCollection)
+  },
+)
 
 export async function getFavoriteCollections(
   userId: string,
@@ -108,9 +104,6 @@ function shapeCollection(row: RawCollection): CollectionWithTypes {
     isFavorite: row.isFavorite,
     itemCount: row.items.length,
     types,
-    typeSlugs: types.map((t) => t.slug),
-    typeColors: Object.fromEntries(types.map((t) => [t.slug, t.color])),
-    typeIcons: Object.fromEntries(types.map((t) => [t.slug, t.icon])),
     createdAt: row.createdAt,
   }
 }

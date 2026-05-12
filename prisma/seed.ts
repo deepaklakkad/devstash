@@ -28,12 +28,11 @@ async function main() {
   console.log("Seeding system item types...")
 
   for (const type of systemTypes) {
-    const existing = await prisma.itemType.findFirst({
-      where: { slug: type.slug, userId: null },
+    await prisma.itemType.upsert({
+      where: { slug_userId: { slug: type.slug, userId: null } },
+      update: {},
+      create: type,
     })
-    if (!existing) {
-      await prisma.itemType.create({ data: type })
-    }
   }
 
   // ============================================
