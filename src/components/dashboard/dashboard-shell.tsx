@@ -5,23 +5,20 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   Code,
-  File,
   FolderPlus,
-  Image,
-  Link as LinkIcon,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
   Search,
   Settings,
-  StickyNote,
-  Sparkles,
   Star,
-  Terminal,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { iconMap } from "@/lib/icon-map"
+import { isProType } from "@/lib/item-types"
+import type { SidebarItemType } from "@/lib/db/items"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,15 +29,6 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 // ---------------------------------------------------------------------------
 // Types (serializable — passed from server layout)
 // ---------------------------------------------------------------------------
-
-type SidebarItemType = {
-  id: string
-  name: string
-  slug: string
-  icon: string
-  color: string
-  itemCount: number
-}
 
 type SidebarCollection = {
   id: string
@@ -57,20 +45,6 @@ type DashboardShellProps = {
   userName: string
   userImage: string | null
 }
-
-// ---------------------------------------------------------------------------
-// Icon map
-// ---------------------------------------------------------------------------
-
-const iconMap = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link: LinkIcon,
-} as const
 
 // ---------------------------------------------------------------------------
 // Sidebar content (shared between desktop aside and mobile Sheet)
@@ -115,7 +89,7 @@ function SidebarContent({
           const Icon = iconMap[type.icon as keyof typeof iconMap] ?? Code
           const href = `/items/${type.slug}`
           const isActive = pathname === href
-          const isPro = type.slug === "file" || type.slug === "image"
+          const isPro = isProType(type.slug)
 
           return (
             <Link
