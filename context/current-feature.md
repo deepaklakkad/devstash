@@ -1,14 +1,41 @@
-# Current Feature
-
-<!-- Feature Name -->
+# Current Feature: Auth Credentials — Email/Password Provider
 
 ## Status
 
-<!-- Not Started|In Progress|Completed -->
+In Progress
 
 ## Goals
 
+- Add a Credentials provider for email/password authentication alongside the existing GitHub OAuth provider
+- Ensure a `password` field exists on `User` (run a Prisma migration if not already present)
+- Add Credentials provider placeholder (`authorize: () => null`) in edge-safe `src/auth.config.ts`
+- Override Credentials provider in `src/auth.ts` with real bcryptjs validation against the DB
+- Create `POST /api/auth/register` route that accepts `{ name, email, password, confirmPassword }`, validates inputs (passwords match, user does not already exist), hashes with bcryptjs, and creates the user
+- Return a clear success/error JSON response shape from the register route
+- Verify end-to-end: register via curl → sign in via `/api/auth/signin` with email/password → land on `/dashboard`
+- Confirm existing GitHub OAuth flow still works after the change
+- `npm run build` passes
+
 ## Notes
+
+- Split-config pattern stays intact: edge-safe `auth.config.ts` only declares the Credentials provider with `authorize: () => null`; real bcrypt validation lives in `auth.ts` (Node runtime, has Prisma adapter).
+- bcryptjs is already installed (used by the seed script for the demo user).
+- User model currently has a `password String?` column (see `prisma/schema.prisma`) — verify before deciding whether a new migration is needed.
+- Use NextAuth's default sign-in page (no custom `pages.signIn`) — Phase 1 already set this up.
+- Reference: https://authjs.dev/getting-started/authentication/credentials
+
+### Testing (from spec)
+
+1. Register via curl:
+   ```bash
+   curl -X POST http://localhost:3000/api/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Test","email":"test@test.com","password":"password123","confirmPassword":"password123"}'
+   ```
+2. Visit `/api/auth/signin`
+3. Sign in with the new email/password
+4. Verify redirect to `/dashboard`
+5. Verify GitHub OAuth still works
 
 ## History
 
