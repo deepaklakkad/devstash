@@ -1,30 +1,14 @@
-# Current Feature: Auth Setup — NextAuth + GitHub Provider
+# Current Feature
+
+<!-- Feature Name -->
 
 ## Status
 
-In Progress
+<!-- Not Started|In Progress|Completed -->
 
 ## Goals
 
-- Install NextAuth v5 (`next-auth@beta`) and `@auth/prisma-adapter`
-- Set up split auth config pattern for edge compatibility (`src/auth.config.ts` + `src/auth.ts`)
-- Add GitHub OAuth provider
-- Wire up NextAuth route handler at `src/app/api/auth/[...nextauth]/route.ts`
-- Protect `/dashboard/*` routes via Next.js 16 proxy (`src/proxy.ts`)
-- Redirect unauthenticated users to NextAuth's default sign-in page
-- Extend `Session` type with `user.id` in `src/types/next-auth.d.ts`
-- Verify end-to-end: `/dashboard` redirects to sign-in → GitHub OAuth → back to `/dashboard`
-
 ## Notes
-
-- Use Context7 to verify newest NextAuth v5 config/conventions before coding.
-- Install with `next-auth@beta` (not `@latest`, which is still v4).
-- Proxy file must live at `src/proxy.ts` (same level as `app/`).
-- Use named export `export const proxy = auth(...)`, NOT default export.
-- Session strategy: `jwt` with the split config pattern (adapter only in `auth.ts`, providers in `auth.config.ts`).
-- Do not set custom `pages.signIn` — rely on NextAuth's built-in sign-in page for this phase.
-- Required env vars: `AUTH_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`.
-- Spec: [context/features/auth-phase-1-spec.md](context/features/auth-phase-1-spec.md)
 
 ## History
 
@@ -137,3 +121,15 @@ In Progress
 - Dropped the `typeSlugs` / `typeColors` / `typeIcons` back-compat fields from `CollectionWithTypes` and the `shapeCollection` mapper; layout now reads `col.types[0]?.color` directly
 - Switched `prisma/seed.ts` system-types loop from `findFirst` + conditional `create` to a single `prisma.itemType.upsert` against the `slug_userId` compound unique
 - `npm run build` passes; `/dashboard` responds 200 with no runtime errors
+
+### Auth Setup — NextAuth + GitHub Provider — 2026-05-14
+
+- Installed `next-auth@5.0.0-beta.31` and `@auth/prisma-adapter@2.11.2`
+- Split config: `src/auth.config.ts` (edge-safe — GitHub provider only) and `src/auth.ts` (Prisma adapter + `session: { strategy: "jwt" }` + `jwt`/`session` callbacks copying `token.sub` → `session.user.id`)
+- NextAuth route handler at `src/app/api/auth/[...nextauth]/route.ts` destructures `{ GET, POST }` from `handlers`
+- `src/proxy.ts` runs a separate edge-safe NextAuth instance (no Prisma adapter), redirects unauthenticated `/dashboard/*` requests to `/api/auth/signin?callbackUrl=...`; named `proxy` export with `config.matcher = ["/dashboard/:path*"]`
+- `src/types/next-auth.d.ts` augments `Session.user` with `id: string`
+- Uses NextAuth's default sign-in page (no custom `pages.signIn`)
+- `.env` requires `AUTH_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` (added to `.env.sample`)
+- `npm run build` passes; Playwright confirmed `/dashboard` → `/api/auth/signin?callbackUrl=...` with **Sign in with GitHub** rendered; GitHub OAuth callback returned 302 (round-trip confirmed at the network level)
+- Pre-existing Turbopack dev-mode quirk surfaced after the OAuth callback: `tailwindcss` resolved from the parent dir `...\code` instead of the project root. Not caused by this feature and does not affect production builds — tracked separately
