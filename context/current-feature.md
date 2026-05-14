@@ -1,41 +1,14 @@
-# Current Feature: Auth Credentials — Email/Password Provider
+# Current Feature
+
+<!-- Feature Name -->
 
 ## Status
 
-In Progress
+<!-- Not Started|In Progress|Completed -->
 
 ## Goals
 
-- Add a Credentials provider for email/password authentication alongside the existing GitHub OAuth provider
-- Ensure a `password` field exists on `User` (run a Prisma migration if not already present)
-- Add Credentials provider placeholder (`authorize: () => null`) in edge-safe `src/auth.config.ts`
-- Override Credentials provider in `src/auth.ts` with real bcryptjs validation against the DB
-- Create `POST /api/auth/register` route that accepts `{ name, email, password, confirmPassword }`, validates inputs (passwords match, user does not already exist), hashes with bcryptjs, and creates the user
-- Return a clear success/error JSON response shape from the register route
-- Verify end-to-end: register via curl → sign in via `/api/auth/signin` with email/password → land on `/dashboard`
-- Confirm existing GitHub OAuth flow still works after the change
-- `npm run build` passes
-
 ## Notes
-
-- Split-config pattern stays intact: edge-safe `auth.config.ts` only declares the Credentials provider with `authorize: () => null`; real bcrypt validation lives in `auth.ts` (Node runtime, has Prisma adapter).
-- bcryptjs is already installed (used by the seed script for the demo user).
-- User model currently has a `password String?` column (see `prisma/schema.prisma`) — verify before deciding whether a new migration is needed.
-- Use NextAuth's default sign-in page (no custom `pages.signIn`) — Phase 1 already set this up.
-- Reference: https://authjs.dev/getting-started/authentication/credentials
-
-### Testing (from spec)
-
-1. Register via curl:
-   ```bash
-   curl -X POST http://localhost:3000/api/auth/register \
-     -H "Content-Type: application/json" \
-     -d '{"name":"Test","email":"test@test.com","password":"password123","confirmPassword":"password123"}'
-   ```
-2. Visit `/api/auth/signin`
-3. Sign in with the new email/password
-4. Verify redirect to `/dashboard`
-5. Verify GitHub OAuth still works
 
 ## History
 
@@ -160,3 +133,13 @@ In Progress
 - `.env` requires `AUTH_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` (added to `.env.sample`)
 - `npm run build` passes; Playwright confirmed `/dashboard` → `/api/auth/signin?callbackUrl=...` with **Sign in with GitHub** rendered; GitHub OAuth callback returned 302 (round-trip confirmed at the network level)
 - Pre-existing Turbopack dev-mode quirk surfaced after the OAuth callback: `tailwindcss` resolved from the parent dir `...\code` instead of the project root. Not caused by this feature and does not affect production builds — tracked separately
+
+### Auth Credentials — Email/Password Provider — 2026-05-14
+
+- Added Credentials placeholder (`authorize: () => null`) to edge-safe `src/auth.config.ts`; real bcryptjs validation lives in `src/auth.ts` (Node runtime, Prisma adapter)
+- Reordered split-config spread in `src/auth.ts` — `...authConfig` now spreads first so the Node-runtime `providers` override (with full `bcrypt.compare` `authorize`) wins over the edge placeholder
+- Created `POST /api/auth/register` accepting `{ name, email, password, confirmPassword }`; validates JSON shape, email format (regex + trim/lowercase), min-8-char password, password match; checks for duplicate user; bcrypt-hashes (cost 10) and creates the user
+- Response shape: `{ ok: true, user: { id, name, email } }` on 201; `{ error: "..." }` on 400 (validation) or 409 (duplicate email)
+- No new Prisma migration — `password String?` was already on `User`
+- `npm run build` passes; end-to-end verified via curl + cookie jar: register → 201, `POST /api/auth/callback/credentials` with CSRF → 302 to `/dashboard` with `authjs.session-token`, `/dashboard` → 200 with session
+- GitHub OAuth still wired: default sign-in page renders both **Sign in with GitHub** and the email/password Credentials form; `POST /api/auth/signin/github` 302s to `github.com/login/oauth/authorize` with PKCE
