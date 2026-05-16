@@ -1,34 +1,14 @@
-# Current Feature: Auth UI — Sign In, Register & Sign Out
+# Current Feature
+
+<!-- Feature Name -->
 
 ## Status
 
-In Progress
+<!-- Not Started|In Progress|Completed -->
 
 ## Goals
 
-- Custom `/sign-in` page with email/password fields, "Sign in with GitHub" button, link to register, form validation and error display
-- Custom `/register` page with name/email/password/confirm-password fields, validation (passwords match, email format), posts to `/api/auth/register`, redirects to sign-in on success
-- Replace NextAuth's default sign-in/register pages with these custom routes
-- Sidebar footer shows user avatar (GitHub `image` if present, otherwise initials from name), user name, and a dropdown on avatar click with a "Sign out" link
-- Clicking the avatar/user area navigates to `/profile`
-- Reusable Avatar component that handles both image and initials fallback
-
 ## Notes
-
-### Avatar Logic
-
-- If user has `image` (from GitHub): use that
-- Otherwise: generate initials from name (e.g., "Brad Traversy" → "BT")
-
-### Testing
-
-1. `/sign-in` — verify custom page renders
-2. Sign in with GitHub — verify flow works
-3. Sign in with email/password — verify flow works
-4. Verify avatar shows (GitHub image or initials)
-5. Click avatar — verify dropdown appears
-6. Click "Sign out" — verify logout and redirect
-7. `/register` — create new account — verify redirect to sign-in
 
 ## History
 
@@ -163,3 +143,19 @@ In Progress
 - No new Prisma migration — `password String?` was already on `User`
 - `npm run build` passes; end-to-end verified via curl + cookie jar: register → 201, `POST /api/auth/callback/credentials` with CSRF → 302 to `/dashboard` with `authjs.session-token`, `/dashboard` → 200 with session
 - GitHub OAuth still wired: default sign-in page renders both **Sign in with GitHub** and the email/password Credentials form; `POST /api/auth/signin/github` 302s to `github.com/login/oauth/authorize` with PKCE
+
+### Auth UI — Sign In, Register & Sign Out — 2026-05-16
+
+- Custom `/sign-in` (`src/app/(auth)/sign-in/page.tsx` + `src/components/auth/sign-in-form.tsx`): email/password fields, **Sign in with GitHub** button (inline GitHub SVG since lucide-react v1 dropped brand icons), link to `/register`, server-side error mapping (`CredentialsSignin`, `OAuthAccountNotLinked`, etc.), client error display from server-action result
+- Custom `/register` (`src/app/(auth)/register/page.tsx` + `src/components/auth/register-form.tsx`): name/email/password/confirm-password, client-side validation (email regex, min-8-char password, password match), POSTs JSON to `/api/auth/register`, surfaces server errors (e.g. 409 duplicate email), redirects to `/sign-in` on 201
+- Shared `(auth)` route-group layout for centered card UI (no dashboard chrome)
+- `auth.config.ts` now sets `pages.signIn: "/sign-in"` so NextAuth-initiated sign-in redirects land on the custom page instead of the default UI
+- `src/proxy.ts` updated: redirects unauth `/dashboard/*` AND `/profile/*` to `/sign-in?callbackUrl=…` (matcher extended)
+- Server actions in `src/actions/auth.ts`: `signInWithCredentials` (FormData → `signIn("credentials", …)`, catches `AuthError` and returns `{ ok, error }`), `signInWithGitHub`, `signOutAction` (redirects to `/sign-in`)
+- Reusable `UserAvatar` component (`src/components/user-avatar.tsx`) with `getInitials()` helper: uses GitHub `image` when present, otherwise initials from name (or email local-part fallback); sizes `sm | default | lg`
+- New `UserMenu` (`src/components/dashboard/user-menu.tsx`) using base-ui `Menu` primitives — replaces the inline avatar+name in `dashboard-shell.tsx` footer; dropdown shows user name + email header, **Profile** link to `/profile`, **Sign out** item calling `signOutAction`
+- `/profile` placeholder (`src/app/profile/page.tsx`) renders the session user's avatar/name/email; guarded by proxy
+- `dashboard/layout.tsx` and `dashboard/page.tsx` now read `auth()` instead of the hardcoded `demo@devstash.io` lookup; layout passes `userEmail` through to the shell so the UserMenu can display it
+- Sonner toast: installed `sonner@^2.0.7`, mounted `<Toaster theme="dark" position="bottom-right" richColors closeButton />` in root layout; successful registration fires `toast.success("Account created", { description: "You can now sign in with your email and password." })` and survives the redirect to `/sign-in`
+- `npm run build` passes (9 routes including `/sign-in`, `/register`, `/profile`); end-to-end verified via curl + cookie jar: register → 201, credentials sign-in → 302 → `/dashboard` 200, `/profile` 200, sign-out → 302, subsequent `/dashboard` → 302 to `/sign-in?callbackUrl=…`
+- Also flipped `next.config.ts` `devIndicators: false` (developer-environment preference, unrelated to auth)
