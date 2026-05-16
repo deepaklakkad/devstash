@@ -1,8 +1,8 @@
 import Link from "next/link"
 import { Code, FolderOpen, Package, Pin, Star } from "lucide-react"
 
+import { auth } from "@/auth"
 import { Badge } from "@/components/ui/badge"
-import { prisma } from "@/lib/db"
 import { getCollectionStats, getRecentCollections, type CollectionWithTypes } from "@/lib/db/collections"
 import { getItemStats, getPinnedItems, getRecentItems, type ItemWithType } from "@/lib/db/items"
 import { iconMap } from "@/lib/icon-map"
@@ -140,9 +140,9 @@ function ItemCard({ item }: { item: ItemWithType }) {
 // ---------------------------------------------------------------------------
 
 export default async function DashboardPage() {
-  // Temporary: use demo user until auth is implemented
-  const demoUser = await prisma.user.findUnique({ where: { email: "demo@devstash.io" } })
-  const userId = demoUser?.id ?? ""
+  const session = await auth()
+  const userId = session?.user?.id ?? ""
+  const userName = session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "there"
 
   const [recentCollections, collectionStats, pinnedItems, recentItems, itemStats] =
     await Promise.all([
@@ -159,7 +159,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Welcome back, {demoUser?.name ?? "there"}
+          Welcome back, {userName}
         </p>
       </div>
 
