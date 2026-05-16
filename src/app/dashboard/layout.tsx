@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db"
+import { auth } from "@/auth"
 import { getFavoriteCollections, getRecentCollections } from "@/lib/db/collections"
 import { getItemTypes } from "@/lib/db/items"
 import { isProType } from "@/lib/item-types"
@@ -9,9 +9,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Temporary: use demo user until auth is implemented
-  const demoUser = await prisma.user.findUnique({ where: { email: "demo@devstash.io" } })
-  const userId = demoUser?.id ?? ""
+  const session = await auth()
+  const userId = session?.user?.id ?? ""
 
   const [allItemTypes, favoriteCollections, recentCollections] = await Promise.all([
     getItemTypes(userId),
@@ -50,8 +49,9 @@ export default async function DashboardLayout({
       itemTypes={itemTypes}
       favoriteCollections={sidebarFavorites}
       recentCollections={sidebarRecents}
-      userName={demoUser?.name ?? "User"}
-      userImage={demoUser?.image ?? null}
+      userName={session?.user?.name ?? "User"}
+      userEmail={session?.user?.email ?? null}
+      userImage={session?.user?.image ?? null}
     >
       {children}
     </DashboardShell>

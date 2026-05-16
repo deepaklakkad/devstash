@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils"
 import { iconMap } from "@/lib/icon-map"
 import { isProType } from "@/lib/item-types"
 import type { SidebarItemType } from "@/lib/db/items"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { UserMenu } from "@/components/dashboard/user-menu"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -43,6 +43,7 @@ type DashboardShellProps = {
   favoriteCollections: SidebarCollection[]
   recentCollections: SidebarCollection[]
   userName: string
+  userEmail: string | null
   userImage: string | null
 }
 
@@ -56,6 +57,7 @@ type SidebarContentProps = {
   favoriteCollections: SidebarCollection[]
   recentCollections: SidebarCollection[]
   userName: string
+  userEmail: string | null
   userImage: string | null
 }
 
@@ -65,15 +67,10 @@ function SidebarContent({
   favoriteCollections,
   recentCollections,
   userName,
+  userEmail,
   userImage,
 }: SidebarContentProps) {
   const pathname = usePathname()
-
-  const userInitials = userName
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
 
   return (
     <div className="flex flex-col h-full">
@@ -197,24 +194,19 @@ function SidebarContent({
         )}
       </nav>
 
-      {/* Footer: avatar + settings */}
+      {/* Footer: user menu + settings */}
       <div
         className={cn(
           "flex items-center border-t border-border px-3 py-2 shrink-0",
           collapsed ? "flex-col gap-2 px-2" : "justify-between"
         )}
       >
-        <div className={cn("flex items-center gap-2", collapsed && "flex-col")}>
-          <Avatar className="size-7">
-            <AvatarImage src={userImage ?? undefined} />
-            <AvatarFallback className="text-xs">{userInitials}</AvatarFallback>
-          </Avatar>
-          {!collapsed && (
-            <span className="text-sm text-foreground truncate max-w-28">
-              {userName}
-            </span>
-          )}
-        </div>
+        <UserMenu
+          name={userName}
+          email={userEmail}
+          image={userImage}
+          collapsed={collapsed}
+        />
         <Button
           variant="ghost"
           size="icon"
@@ -237,12 +229,20 @@ export default function DashboardShell({
   favoriteCollections,
   recentCollections,
   userName,
+  userEmail,
   userImage,
 }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const sidebarProps = { itemTypes, favoriteCollections, recentCollections, userName, userImage }
+  const sidebarProps = {
+    itemTypes,
+    favoriteCollections,
+    recentCollections,
+    userName,
+    userEmail,
+    userImage,
+  }
 
   return (
     <div className="flex flex-col h-screen bg-background">
